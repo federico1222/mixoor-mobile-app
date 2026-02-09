@@ -1,5 +1,5 @@
-import { View } from "react-native";
+import MainScreen from "@/src/components/screens/MainScreen";
 
 export default function Index() {
-  return <View></View>;
+  return <MainScreen />;
 }

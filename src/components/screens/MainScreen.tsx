@@ -1,3 +1,9 @@
+import { Text, View } from "tamagui";
+
 export default function MainScreen() {
-  return <div>MainScreen</div>;
+  return (
+    <View>
+      <Text></Text>
+    </View>
+  );
 }
