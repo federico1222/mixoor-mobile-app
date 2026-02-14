@@ -1,0 +1,12 @@
+export const SOLANA_RPC_ENDPOINT = process.env.EXPO_PUBLIC_SOL_RPC_ENDPOINT;
+
+export const SOLANA_RPC_SUBSCRIPTIONS_ENDPOINT =
+  process.env.EXPO_PUBLIC_SOL_RPC_SUBSCRIPTIONS_ENDPOINT!;
+
+export const MIXOOR_BACKEND_API_ENDPOINT =
+  process.env.EXPO_PUBLIC_MIXOOR_BACKEND_API_ENDPOINT ??
+  "http://localhost:3040/v1";
+
+export const APP_MODE = process.env.NODE_ENV;
+
+export const JUPITER_API_KEY = process.env.EXPO_PUBLIC_JUPITER_API_KEY;

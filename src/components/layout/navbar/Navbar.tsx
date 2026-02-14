@@ -1,5 +1,5 @@
 import { Image, XStack } from "tamagui";
-import ConnectWalletButton from "../wallet/ConnectWalletButton";
+import ConnectWalletButton from "../../wallet/ConnectWalletButton";
 
 export default function Navbar() {
   return (
@@ -8,7 +8,7 @@ export default function Navbar() {
         width={160}
         height={30}
         objectFit="contain"
-        src={require("../../assets/img/logo-mixoor.png")}
+        src={require("../../../assets/img/logo-mixoor.png")}
       />
 
       <ConnectWalletButton />
