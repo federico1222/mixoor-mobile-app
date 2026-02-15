@@ -17,12 +17,26 @@ const bodyFont = createFont({
   },
 });
 
+const headingFont = createFont({
+  family: "BeVietnamBold",
+  size: {
+    1: 12,
+    2: 14,
+    3: 16,
+    4: 20,
+    5: 24,
+    6: 32,
+    7: 40,
+  },
+});
+
 export const tamaguiConfig = createTamagui({
   ...defaultConfig,
 
   fonts: {
     ...defaultConfig.fonts,
     body: bodyFont,
+    heading: headingFont,
     mono: bodyFont,
   },
 

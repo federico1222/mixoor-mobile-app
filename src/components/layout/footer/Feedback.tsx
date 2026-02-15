@@ -23,7 +23,7 @@ export default function Feedback() {
     try {
       await mutateAsync({
         feedback,
-        wallet: "HardcodedWallet123456789",
+        wallet: "test",
       });
 
       setFeedback("");
