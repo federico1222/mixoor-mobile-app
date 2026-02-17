@@ -34,7 +34,7 @@ export default function CustomDialog({
           p={24}
           rounded={20}
           width={"100%"}
-          bg={"#0C0D11"}
+          bg={"$background"}
           key={`content-${id}`}
           border={"1px solid #27272A"}
           {...dialogContentProps}

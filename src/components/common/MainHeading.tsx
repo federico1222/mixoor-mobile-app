@@ -19,7 +19,7 @@ export default function MainHeading({
           px="$3"
           py="$2"
           rounded="$10"
-          color="#CCCFF9"
+          color="$secondary"
           fontSize="$2"
           borderWidth={1}
           borderColor="#27272A"
@@ -32,8 +32,8 @@ export default function MainHeading({
       <Text
         fontFamily={"$heading"}
         fontWeight={700}
-        color="#CCCFF9"
-        fontSize={"$6"}
+        color="$secondary"
+        fontSize={"$5"}
       >
         {title}
       </Text>
@@ -41,7 +41,7 @@ export default function MainHeading({
       {desc && (
         <Paragraph
           color="#CED0D1"
-          fontSize="$1"
+          fontSize="$3"
           fontWeight={400}
           style={{ textAlign: "center" }}
         >

@@ -16,7 +16,11 @@ export function Footer() {
             src={require("../../../assets/img/logo-mixoor.png")}
           />
 
-          <Text fontSize={16} color="rgba(250,250,250,0.5)">
+          <Text
+            fontFamily={"$body"}
+            fontSize={"$3"}
+            color="rgba(250,250,250,0.5)"
+          >
             Privacy is not an optional feature
           </Text>
         </YStack>
@@ -27,12 +31,12 @@ export function Footer() {
             How Mixoor works
           </Text>
 
-          <Text fontSize={16} color="rgba(250,250,250,0.5)">
+          <Text fontSize={"$3"} color="rgba(250,250,250,0.5)">
             Mixoor allows you to transfer funds without any visible connection
             on blockchain explorers.
           </Text>
 
-          <Text fontSize={16} color="rgba(250,250,250,0.5)">
+          <Text fontSize={"$3"} color="rgba(250,250,250,0.5)">
             Our system uses a Solana Program (aka Smart Contract) with Merkle
             Trees, Encrypted Data, and a Decentralized Indexer to deliver
             privacy.
@@ -65,7 +69,7 @@ export function Footer() {
                     src={require("../../../assets/img/dex-screener-icon.png")}
                   />
                 ) : (
-                  Icon && <Icon size={18} color="#CCCFF9" />
+                  Icon && <Icon size={18} color={"#CCCFF9"} />
                 )
               }
               bg="rgba(64,53,122,0.05)"
@@ -76,29 +80,29 @@ export function Footer() {
 
         <YStack self="center" gap={10} mb={40}>
           <XStack gap={8} justify="center" self="center">
-            <Text fontSize={16}>© {new Date().getFullYear()} Mixoor</Text>
+            <Text fontSize={"$3"}>© {new Date().getFullYear()} Mixoor</Text>
 
-            <Text fontSize={16}>-</Text>
+            <Text fontSize={"$3"}>-</Text>
 
             <Text
-              fontSize={16}
+              fontSize={"$3"}
               color="$color"
               onPress={() => Linking.openURL("https://docs.mixoor.fun")}
             >
               Docs
             </Text>
 
-            <Text fontSize={16}>-</Text>
+            <Text fontSize={"$3"}>-</Text>
 
             <Text
-              fontSize={16}
+              fontSize={"$3"}
               color="$color"
               onPress={() => Linking.openURL("https://discord.gg/vzBWQJAnxW")}
             >
               Support
             </Text>
 
-            <Text fontSize={16}>-</Text>
+            <Text fontSize={"$3"}>-</Text>
 
             <Feedback />
           </XStack>
@@ -109,7 +113,7 @@ export function Footer() {
             gap={4}
             onPress={() => Linking.openURL("https://tools.smithii.io/")}
           >
-            <Text fontSize={16} mt={6}>
+            <Text fontSize={"$3"} mt={6}>
               Powered by
             </Text>
 

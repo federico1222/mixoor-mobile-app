@@ -16,3 +16,8 @@ export const SOCIAL_MEDIA = [
     url: "https://dexscreener.com/solana/cgyaq6iwbj9ke2x8ga7jbypkb5x4umg4dm6rvgkkzska",
   },
 ];
+
+export const DEFAULT_INPUT = [
+  { address: "", uiAmount: "" },
+  { address: "", uiAmount: "" },
+];

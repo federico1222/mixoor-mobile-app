@@ -1,4 +1,5 @@
 import { useSendFeedback } from "@/src/hooks/userUser";
+import { useToast } from "@/src/provider";
 import { useEffect, useRef, useState } from "react";
 import {
   Button,
@@ -15,20 +16,31 @@ export default function Feedback() {
   const [feedback, setFeedback] = useState("");
   const textAreaRef = useRef<TamaguiElement>(null);
 
+  const { toast } = useToast();
   const { mutateAsync, isPending } = useSendFeedback();
 
   const handleSend = async () => {
     if (!feedback.trim()) return;
 
     try {
-      await mutateAsync({
-        feedback,
-        wallet: "test",
+      await mutateAsync({ feedback, wallet: "test" });
+
+      toast({
+        type: "success",
+        title: "Feedback sent!",
+        description: "Feedback sent successfully. Thank you!",
       });
 
       setFeedback("");
     } catch (error) {
-      console.error("Error sending feedback:", error);
+      toast({
+        type: "error",
+        title: "Error",
+        description: `Error sending feedback: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+        duration: 200000,
+      });
     } finally {
       setOpen(false);
     }
@@ -56,7 +68,7 @@ export default function Feedback() {
         </Text>
       }
     >
-      <Dialog.Title fontSize="$5" color="$color" fontWeight="$6">
+      <Dialog.Title fontSize="$4" color="$color" fontWeight={600}>
         We’d love your feedback
       </Dialog.Title>
 
