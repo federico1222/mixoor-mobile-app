@@ -1,50 +1,50 @@
-# Welcome to your Expo app 👋
+# Mixoor Mobile App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Mobile app for Mixoor with Solana Mobile Wallet Adapter support.
 
-## Get started
+## Prerequisites
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+- **pnpm** (package manager)
+- **Android Studio** with Android SDK
+- **NDK 29.0.14206865** (install via Android Studio → SDK Manager → SDK Tools)
+- Environment variables:
 
 ```bash
-npm run reset-project
+  export ANDROID_HOME=$HOME/Library/Android/sdk
+  export PATH=$PATH:$ANDROID_HOME/emulator
+  export PATH=$PATH:$ANDROID_HOME/platform-tools
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Setup
 
-## Learn more
+1. Install dependencies:
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+   pnpm install
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+2. Create `.env` file:
 
-## Join the community
+```env
+   EXPO_PUBLIC_SOL_RPC_ENDPOINT=...
+   EXPO_PUBLIC_MIXOOR_BACKEND_API_ENDPOINT=...
+   EXPO_PUBLIC_SOL_RPC_SUBSCRIPTIONS_ENDPOINT=...
+```
 
-Join our community of developers creating universal apps.
+3. Run on Android:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+   npx expo run:android
+```
+
+First build takes ~10 min. After that, changes reload instantly.
+
+## Notes
+
+- MWA only works on Android
+- We use `@solana/kit` throughout the codebase with a compatibility layer for MWA
+- NDK version is set in `android/gradle.properties`
+
+---
+
+**Package manager:** pnpm only

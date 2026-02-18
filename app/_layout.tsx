@@ -1,6 +1,5 @@
-import "@tamagui/native/setup-zeego";
-
 import { tamaguiConfig } from "@/src/config/tamagui";
+import { MobileWalletProvider } from "@/src/context/MobileWalletProvider";
 import {
   FontsProvider,
   ToastProvider,
@@ -18,14 +17,16 @@ export default function RootLayout() {
       <TamaguiProvider config={tamaguiConfig} defaultTheme="dark">
         <ToastProvider>
           <QueryClientProvider client={queryClient}>
-            <TransferInputProvider>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: "#090b0b" },
-                }}
-              />
-            </TransferInputProvider>
+            <MobileWalletProvider>
+              <TransferInputProvider>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: "#090b0b" },
+                  }}
+                />
+              </TransferInputProvider>
+            </MobileWalletProvider>
           </QueryClientProvider>
         </ToastProvider>
       </TamaguiProvider>

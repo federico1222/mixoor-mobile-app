@@ -60,12 +60,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/splash-icon.png",
+          "image": "./assets/mixoor-chrome-192x192.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#5D44BE",
           "dark": {
-            "image": "./assets/splash-icon.png",
+            "image": "./assets/mixoor-chrome-192x192.png",
             "backgroundColor": "#5D44BE"
           }
         }
