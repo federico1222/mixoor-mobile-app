@@ -71,6 +71,18 @@ export const tamaguiConfig = createTamagui({
     mono: bodyFont,
   },
 
+  themes: {
+    ...defaultConfig.themes,
+    dark: {
+      ...defaultConfig.themes.dark,
+      placeholderColor: "rgba(250, 250, 250, 0.50)",
+    },
+    light: {
+      ...defaultConfig.themes.light,
+      placeholderColor: "rgba(0, 0, 0, 0.50)",
+    },
+  },
+
   tokens: {
     ...defaultConfig.tokens,
 
@@ -81,7 +93,7 @@ export const tamaguiConfig = createTamagui({
       surface: "#1E293B",
       text: "#FFFFFF",
       muted: "#94A3B8",
-      danger: "#EF4444",
+      danger: "#F87171",
     },
 
     space: {
@@ -103,6 +115,8 @@ export const tamaguiConfig = createTamagui({
       2: 8,
       3: 12,
       4: 16,
+      5: 18,
+      6: 24,
     },
 
     size: {

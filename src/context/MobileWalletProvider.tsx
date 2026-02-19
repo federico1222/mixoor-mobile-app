@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { getWalletIcon } from "../helpers";
 import { fromLegacyPublicKey } from "../utils";
 
 interface WalletInfo {
@@ -82,6 +83,7 @@ export function MobileWalletProvider({ children }: { children: ReactNode }) {
 
       setWalletInfo({
         name: result.accounts[0].label || "unknown-wallet",
+        icon: getWalletIcon(result.accounts[0].label || ""),
       });
 
       setAddress(kitAddress);

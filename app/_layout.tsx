@@ -3,6 +3,7 @@ import { MobileWalletProvider } from "@/src/context/MobileWalletProvider";
 import {
   FontsProvider,
   ToastProvider,
+  TokenProvider,
   TransferInputProvider,
 } from "@/src/provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -18,14 +19,16 @@ export default function RootLayout() {
         <ToastProvider>
           <QueryClientProvider client={queryClient}>
             <MobileWalletProvider>
-              <TransferInputProvider>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                    contentStyle: { backgroundColor: "#090b0b" },
-                  }}
-                />
-              </TransferInputProvider>
+              <TokenProvider>
+                <TransferInputProvider>
+                  <Stack
+                    screenOptions={{
+                      headerShown: false,
+                      contentStyle: { backgroundColor: "#090b0b" },
+                    }}
+                  />
+                </TransferInputProvider>
+              </TokenProvider>
             </MobileWalletProvider>
           </QueryClientProvider>
         </ToastProvider>

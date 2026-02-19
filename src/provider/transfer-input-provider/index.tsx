@@ -26,6 +26,9 @@ interface TransferInputContextType {
   displayAmount: string;
   setDisplayAmount: Dispatch<SetStateAction<string>>;
 
+  transferInput: TransferInput[];
+  setTransferInput: Dispatch<SetStateAction<TransferInput[]>>;
+
   totalAmount: number;
 }
 
@@ -74,6 +77,7 @@ export const TransferInputProvider = ({
       displayAmount,
       setDisplayAmount,
       setTransferInput,
+      transferInput,
     }),
     [
       transferType,
@@ -88,6 +92,7 @@ export const TransferInputProvider = ({
       displayAmount,
       setDisplayAmount,
       setTransferInput,
+      transferInput,
     ]
   );
 

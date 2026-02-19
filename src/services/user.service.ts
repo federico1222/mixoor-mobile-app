@@ -38,3 +38,14 @@ export async function saveNewUser(data: CreateUserPayload) {
 
   return json;
 }
+
+export async function fetchUserDetails(address: string) {
+  try {
+    const resp = await fetch(`${BASE_URL}/address/${address}`);
+
+    return await resp.json();
+  } catch (error) {
+    console.log("error fetching user details");
+    throw error;
+  }
+}

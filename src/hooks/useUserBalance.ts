@@ -7,6 +7,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
 import { RpcContext, useMobileWallet } from "../context";
 
+/**
+ * Fetches the connected user's native SOL balance (in lamports)
+ * using the RPC client. Automatically refetches when the wallet
+ * address changes and is cached by React Query.
+ */
 export const useUserSolBalance = () => {
   const { rpc } = useContext(RpcContext);
   const { address: walletAddress } = useMobileWallet();
@@ -28,6 +33,11 @@ export const useUserSolBalance = () => {
   });
 };
 
+/**
+ * Fetches the connected user's SPL token balance for a given mint.
+ * It derives the Associated Token Account (ATA) for the wallet and mint,
+ * then queries its token balance via RPC. Query execution can be conditionally enabled.
+ */
 export const useUserSPLTokenBalance = (
   mint: Address,
   tokenProgram: Address = TOKEN_PROGRAM_ADDRESS,
@@ -41,11 +51,13 @@ export const useUserSPLTokenBalance = (
     queryFn: async () => {
       try {
         if (!address) return 0;
+
         const [associatedTokenAddress] = await findAssociatedTokenPda({
           owner: address,
           tokenProgram,
           mint,
         });
+
         return (await rpc.getTokenAccountBalance(associatedTokenAddress).send())
           .value.amount;
       } catch (error) {

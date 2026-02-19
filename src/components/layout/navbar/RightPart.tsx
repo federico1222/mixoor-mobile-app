@@ -1,12 +1,15 @@
 import { useMobileWallet } from "@/src/context";
 import { formatAddress } from "@/src/helpers";
+import { useUserDetails } from "@/src/hooks/userUser";
 import { WalletIcon } from "phosphor-react-native";
-import React from "react";
+import { Image } from "tamagui";
 import ConnectWalletButton from "../wallet/ConnectWalletButton";
 import { WalletMenu } from "../wallet/WalletMenu";
 
 export default function RightPart() {
-  const { address, connect, disconnect, isConnected } = useMobileWallet();
+  const { data: userDetails } = useUserDetails();
+  const { address, connect, disconnect, isConnected, walletInfo } =
+    useMobileWallet();
 
   if (!isConnected || !address) {
     return (
@@ -33,9 +36,13 @@ export default function RightPart() {
           maxH={40}
           rounded={"$2"}
           bg={"#5D44BE"}
-          title={formatAddress(address, 4, 0, 4) || ""}
+          title={userDetails?.username || formatAddress(address, 3, 0, 3)}
         >
-          <WalletIcon color="#CCCFF9" size={18} />
+          {walletInfo?.icon ? (
+            <Image src={walletInfo.icon} width={18} height={18} />
+          ) : (
+            <WalletIcon color="#CCCFF9" size={18} />
+          )}
         </ConnectWalletButton>
       }
     />

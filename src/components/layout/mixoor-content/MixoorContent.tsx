@@ -1,5 +1,6 @@
 import React from "react";
 import CustomContainer from "../../common/CustomContainer";
+import MixoorBottomPart from "./mixoor-bottom-part/MixoorBottomPart";
 import MixoorMiddlePart from "./mixoor-middle-part/MixoorMiddlePart";
 import MixoorTopPart from "./mixoor-top-part/MixoorTopPart";
 
@@ -18,6 +19,9 @@ export default function MixoorContent() {
 
       {/* Middle Part */}
       <MixoorMiddlePart />
+
+      {/* Bottom Part */}
+      <MixoorBottomPart />
     </CustomContainer>
   );
 }

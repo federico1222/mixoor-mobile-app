@@ -21,3 +21,9 @@ export const DEFAULT_INPUT = [
   { address: "", uiAmount: "" },
   { address: "", uiAmount: "" },
 ];
+
+export const WALLET_ICONS: Record<string, any> = {
+  "phantom-wallet": require("../assets/wallets/phantom.png"),
+  "solflare-wallet": require("../assets/wallets/solflare.png"),
+  "metamask-wallet": require("../assets/wallets/metamask.png"),
+};

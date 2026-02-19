@@ -1,4 +1,9 @@
-import { X } from "phosphor-react-native";
+import {
+  CheckCircleIcon,
+  InfoIcon,
+  X,
+  XCircleIcon,
+} from "phosphor-react-native";
 import React, { createContext, ReactNode, useContext, useState } from "react";
 import {
   Button,
@@ -6,14 +11,33 @@ import {
   Text,
   Toast,
   ToastViewport,
+  XStack,
 } from "tamagui";
+
+const TOAST_CONFIG = {
+  error: {
+    bg: "#2B0010",
+    textColor: "#EFB2CE",
+    icon: XCircleIcon,
+  },
+  success: {
+    bg: "#0A2B08",
+    textColor: "#84E76F",
+    icon: CheckCircleIcon,
+  },
+  info: {
+    bg: "#0A2B5D",
+    textColor: "#B2D4FF",
+    icon: InfoIcon,
+  },
+};
 
 type ToastType = "success" | "error" | "info";
 
 type ToastData = {
   id: string;
   type: ToastType;
-  title: string;
+  title?: string;
   description?: string;
   duration?: number;
 };
@@ -51,26 +75,20 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {children}
 
         {toasts.map((t) => {
-          const bgColor =
-            t.type === "error"
-              ? "#2B0010"
-              : t.type === "success"
-              ? "#0A2B08"
-              : "#0A2B5D";
-
-          const textColor =
-            t.type === "error"
-              ? "#EFB2CE"
-              : t.type === "success"
-              ? "#84E76F"
-              : "#B2D4FF";
+          const config = TOAST_CONFIG[t.type];
+          const Icon = config.icon;
 
           return (
             <Toast
+              width={"100%"}
               key={t.id}
-              bg={bgColor}
-              rounded="$4"
+              style={{
+                backgroundColor: config.bg,
+                borderLeftColor: config.textColor,
+              }}
+              rounded="$3"
               p="$4"
+              border="1px solid"
               position="relative"
               duration={t.duration}
               onOpenChange={(open) => {
@@ -79,14 +97,27 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               boxShadow="0px 2px 4px rgba(0,0,0,0.18), 0px 8px 24px rgba(0,0,0,0.11)"
             >
               <Toast.Title>
-                <Text color={textColor} fontWeight={500} fontSize={"$4"}>
-                  {t.title}
-                </Text>
+                <XStack items={"center"} gap={"$2"}>
+                  <Icon
+                    size={22}
+                    color={config.textColor}
+                    weight="fill"
+                    style={{ marginBottom: 3 }}
+                  />
+
+                  <Text
+                    style={{ color: config.textColor }}
+                    fontWeight={600}
+                    fontSize={"$4"}
+                  >
+                    {t.title}
+                  </Text>
+                </XStack>
               </Toast.Title>
 
               {t.description && (
                 <Toast.Description mt={"$1"}>
-                  <Text color={textColor} fontSize={"$2"}>
+                  <Text style={{ color: config.textColor }} fontSize={"$2"}>
                     {t.description}
                   </Text>
                 </Toast.Description>
@@ -99,7 +130,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 top={"$3"}
               >
                 <Button size="$2" bg="transparent">
-                  <X color={textColor} size={14} />
+                  <X color={config.textColor} size={14} />
                 </Button>
               </Toast.Close>
             </Toast>
@@ -109,7 +140,6 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         <ToastViewport
           position={"absolute"}
           bottom={"$3"}
-          right={"$3"}
           zIndex={9999}
           padding="$3"
         />

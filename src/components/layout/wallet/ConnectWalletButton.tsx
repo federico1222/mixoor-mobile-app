@@ -7,7 +7,7 @@ export default function ConnectWalletButton({
   title,
   ...props
 }: {
-  title: string | undefined;
+  title: string | undefined | React.ReactNode;
   onPress?: () => void;
   children: React.ReactNode;
 } & ButtonProps) {
@@ -21,7 +21,7 @@ export default function ConnectWalletButton({
       onPress={onPress}
       {...props}
     >
-      <XStack minW={20} minH={20} maxW={20} maxH={20} position="relative" t={2}>
+      <XStack minW={20} minH={20} maxW={20} maxH={20} position="relative" t={1}>
         {children}
       </XStack>
 
