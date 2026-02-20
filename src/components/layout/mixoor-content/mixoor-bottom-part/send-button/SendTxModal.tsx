@@ -1,10 +1,12 @@
 import CustomDialog from "@/src/components/common/CustomDialog";
+import { useMobileWallet } from "@/src/context";
 import { formatAddress } from "@/src/helpers";
 import { calculateTransferFee } from "@/src/helpers/calculations";
 import { useTransferButtonValidations } from "@/src/hooks/useTransferButtonValidations";
 import { useTokenSelection, useTransferInput } from "@/src/provider";
+import { PaperPlaneTiltIcon } from "phosphor-react-native";
 import { Dispatch, SetStateAction } from "react";
-import { Text, XStack, YStack } from "tamagui";
+import { Button, Text, XStack, YStack } from "tamagui";
 import DialogTransferView from "./DialogTransferView";
 import MultiRecipientCollapsible from "./MultiRecipientCollapsible";
 
@@ -27,6 +29,7 @@ export default function SendTxModal({
   const { selectedToken } = useTokenSelection();
   const { confirmationPopUpText, totalUiAmount } =
     useTransferButtonValidations();
+  const { address: selectedWalletAccount } = useMobileWallet();
 
   const error = false;
   const success = false;
@@ -114,6 +117,14 @@ export default function SendTxModal({
             ~{calculateTransferFee(isMultipleWallets ? totalAmount : uiAmount)}
           </Text>
         </XStack>
+
+        {selectedWalletAccount && (
+          <Button height={44} flex={1} bg={error ? "#321812" : "#5D44BE"}>
+            <Text color={error ? "#FFC1B2" : "#CCCFF9"}>Send</Text>
+
+            <PaperPlaneTiltIcon size={16} color="#CCCFF9" />
+          </Button>
+        )}
       </YStack>
     </CustomDialog>
   );

@@ -15,3 +15,41 @@ export interface UserDetails {
   createdAt: string;
   username: string;
 }
+
+export type PaginatedTransfersResponse = {
+  success: string;
+  data: PreviousPrivateTransferLogs[];
+  pagination: {
+    total: number;
+    offset: number;
+    limit: number;
+    hasMore: boolean;
+  };
+};
+
+export type PreviousPrivateTransferLogs = {
+  depositId: string;
+  uiAmount: number;
+  txSignature: string;
+  createdAt: Date;
+  poolAddress: string;
+  mintAddress: string;
+  assetType: "Sol" | "SplToken";
+  recipientAddress?: string;
+  errorRecipientAddress?: string;
+  errorReason?: string;
+  isErrorResolved?: boolean;
+  // FIX: this was removed
+  multiRecipients?: [
+    {
+      uiAmount: number;
+      destination: string;
+    }
+  ];
+  tokenMetadata?: {
+    symbol?: string;
+    name?: string;
+    image?: string;
+    decimals?: number;
+  };
+};

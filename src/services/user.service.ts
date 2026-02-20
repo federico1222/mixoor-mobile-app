@@ -49,3 +49,25 @@ export async function fetchUserDetails(address: string) {
     throw error;
   }
 }
+
+export async function privateUserTransfers(
+  userAddress: string,
+  limit: number = 10,
+  offset: number = 0,
+  sortOrder: "asc" | "desc" = "desc"
+) {
+  try {
+    const url = `${BASE_URL}/address/${userAddress}/transfers`;
+    const resp = await fetch(
+      `${url}?limit=${limit}&offset=${offset}&sortOrder=${sortOrder}`,
+      {
+        credentials: "include",
+      }
+    );
+
+    return resp.json();
+  } catch (error) {
+    console.log("error fetching user deposits");
+    throw error;
+  }
+}
