@@ -13,6 +13,7 @@ import {
 import { useState } from "react";
 import { Image, Pressable, ScrollView } from "react-native";
 import { Text, XStack, YStack } from "tamagui";
+import TransactionSidebar from "./TransactionSidebar";
 
 const COL_DATE = 110;
 const COL_RECIPIENT = 180;
@@ -106,7 +107,7 @@ export default function TransactionsTable() {
                   <WarningCircleIcon
                     size={14}
                     color="#EF4444"
-                    style={{ position: "absolute", left: 0, top: 3 }}
+                    style={{ position: "absolute", left: 6, top: 3 }}
                   />
                 )}
                 <Text fontSize={14} color={textColor} fontWeight="400">
@@ -219,7 +220,9 @@ export default function TransactionsTable() {
           borderBottomLeftRadius={12}
           borderBottomRightRadius={12}
           bg="rgba(64, 53, 122, 0.15)"
-        />
+        >
+          <TransactionSidebar copiedId={copiedId} handleCopy={handleCopy} />
+        </YStack>
       </YStack>
     </ScrollView>
   );

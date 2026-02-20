@@ -72,4 +72,17 @@ export const MOCK_TRANSFERS = [
         "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png",
     },
   },
+  {
+    txSignature: "tx4",
+    depositId: "dep3",
+    createdAt: "2026-02-17T09:15:00Z",
+    recipientAddress: "3FZbgi29cpjq2GjdwV8eyHuJJnkLtktZc5CE43H6DkE2",
+    uiAmount: "75.50",
+    multiRecipients: null,
+    errorReason: "Insufficient funds",
+    tokenMetadata: {
+      image:
+        "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png",
+    },
+  },
 ];
