@@ -5,6 +5,7 @@ import MainHeading from "../common/MainHeading";
 import SetUserNameModal from "../common/SetUserNameModal";
 import AppLayout from "../layout/AppLayout";
 import MixoorContent from "../layout/mixoor-content/MixoorContent";
+import MixoorTable from "../layout/mixoor-content/mixoor-table/MixoorTable";
 
 export default function MainScreen() {
   const { address: walletAddress } = useMobileWallet();
@@ -35,6 +36,9 @@ export default function MainScreen() {
 
         {/* Mixoor Conren */}
         <MixoorContent />
+
+        {/* Mixoor Transaction History */}
+        <MixoorTable />
       </YStack>
     </AppLayout>
   );

@@ -114,13 +114,15 @@ export default function SendTxModal({
             fontWeight={700}
             color={recipientAddress ? "#FAFAFA" : "rgba(250, 250, 250, 0.50)"}
           >
-            ~{calculateTransferFee(isMultipleWallets ? totalAmount : uiAmount)}
+            ~ {""}
+            {calculateTransferFee(isMultipleWallets ? totalAmount : uiAmount) ||
+              0}
           </Text>
         </XStack>
 
         {selectedWalletAccount && (
-          <Button height={44} flex={1} bg={error ? "#321812" : "#5D44BE"}>
-            <Text color={error ? "#FFC1B2" : "#CCCFF9"}>Send</Text>
+          <Button height={"$4"} bg={error ? "#321812" : "#5D44BE"}>
+            <Text color={error ? "#FFC1B2" : "$secondary"}>Send</Text>
 
             <PaperPlaneTiltIcon size={16} color="#CCCFF9" />
           </Button>

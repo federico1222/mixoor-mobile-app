@@ -43,3 +43,30 @@ export type MultiRecipient = {
   /** @label deposit transaction signature */
   txSignature: string; // confirm tx didn't error out during deposit
 };
+
+type DirectTransferDataResp = {
+  signatures: string[];
+  recipient: string;
+  amount: number;
+};
+
+export type DirectTransferResp = ApiResponse<DirectTransferDataResp>;
+
+export type ApiResponse<T> = {
+  success: boolean;
+  message?: string;
+  data: T;
+};
+
+type TransferSparsedDataResp = {
+  signatures: string[];
+};
+export type TransferSparsedResp = ApiResponse<TransferSparsedDataResp>;
+
+export type TransferSparsedPayload = {
+  userAddress: string;
+  depositId: number;
+  recipientAddress: string;
+  // if sending to multiple recipients
+  multiRecipients?: MultiRecipient[];
+};
