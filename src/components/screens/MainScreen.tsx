@@ -1,4 +1,5 @@
 import { useMobileWallet } from "@/src/context";
+import { useWalletSession } from "@/src/hooks/useWalletSession";
 import { useUserDetails } from "@/src/hooks/userUser";
 import { YStack } from "tamagui";
 import MainHeading from "../common/MainHeading";
@@ -11,6 +12,11 @@ import MixoorTable from "../layout/mixoor-content/mixoor-table/MixoorTable";
 export default function MainScreen() {
   const { address: walletAddress } = useMobileWallet();
   const { data: userDetails, isFetched } = useUserDetails();
+
+  /*
+   * Handle wallet session lifecycle (logout on account change, auto-auth)
+   */
+  useWalletSession();
 
   /**
    * Show username setup when:

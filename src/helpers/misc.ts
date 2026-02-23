@@ -1,4 +1,4 @@
-import { SOLANA_RPC_ENDPOINT } from "../config/env";
+import { SOLANA_RPC_ENDPOINT } from "../config";
 
 /**
  * Returns chains config to send a transaction

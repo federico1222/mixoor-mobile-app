@@ -10,7 +10,7 @@ import { createContext } from "react";
 import {
   SOLANA_RPC_ENDPOINT,
   SOLANA_RPC_SUBSCRIPTIONS_ENDPOINT,
-} from "../config/env";
+} from "../config";
 
 export const RpcContext = createContext<{
   rpc: Rpc<SolanaRpcApiMainnet>;

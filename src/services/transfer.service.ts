@@ -1,4 +1,4 @@
-import { MIXOOR_BACKEND_API_ENDPOINT } from "../config/env";
+import { MIXOOR_BACKEND_API_ENDPOINT } from "../config";
 import {
   DirectTransferResp,
   TransferPayload,
