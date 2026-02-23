@@ -34,6 +34,9 @@ export default function SendTxModal({
   const error = false;
   const success = false;
 
+  // TODO: work here
+  // TODO: work here
+
   return (
     <CustomDialog id="tx-modal" open={open} setOpen={setOpen} trigger={null}>
       <DialogTransferView

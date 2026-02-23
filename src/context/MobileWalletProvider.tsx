@@ -56,7 +56,7 @@ export function MobileWalletProvider({ children }: { children: ReactNode }) {
               uri: "https://mixoor.fun",
               icon: "favicon.ico",
             },
-            chain: "solana:devnet",
+            chain: "solana:devnet", // FIXME: get cluster from env
             auth_token: cachedToken ?? undefined,
           });
         } catch {
@@ -66,7 +66,7 @@ export function MobileWalletProvider({ children }: { children: ReactNode }) {
               uri: "https://mixoor.fun",
               icon: "favicon.ico",
             },
-            chain: "solana:devnet",
+            chain: "solana:devnet", // FIXME: get cluster from env
           });
         }
       });
