@@ -39,7 +39,6 @@ export default function Feedback() {
         description: `Error sending feedback: ${
           error instanceof Error ? error.message : String(error)
         }`,
-        duration: 200000,
       });
     } finally {
       setOpen(false);

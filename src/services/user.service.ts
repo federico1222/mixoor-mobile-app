@@ -71,3 +71,22 @@ export async function privateUserTransfers(
     throw error;
   }
 }
+
+export async function fetchUserDeposits(
+  userAddress: string,
+  status: "all" | "unspent" = "unspent"
+) {
+  try {
+    const resp = await fetch(
+      `${BASE_URL}/address/${userAddress}/deposits?status=${status}`,
+      {
+        credentials: "include",
+      }
+    );
+
+    return resp.json();
+  } catch (error) {
+    console.log("error fetching user deposits");
+    throw error;
+  }
+}

@@ -5,6 +5,7 @@ import MainHeading from "../common/MainHeading";
 import SetUserNameModal from "../common/SetUserNameModal";
 import AppLayout from "../layout/AppLayout";
 import MixoorContent from "../layout/mixoor-content/MixoorContent";
+import MixoorDepositTable from "../layout/mixoor-content/mixoor-deposit-table/MixoorDepositTable";
 import MixoorTable from "../layout/mixoor-content/mixoor-table/MixoorTable";
 
 export default function MainScreen() {
@@ -36,6 +37,9 @@ export default function MainScreen() {
 
         {/* Mixoor Conren */}
         <MixoorContent />
+
+        {/* Mixoor Deposits */}
+        <MixoorDepositTable />
 
         {/* Mixoor Transaction History */}
         <MixoorTable />

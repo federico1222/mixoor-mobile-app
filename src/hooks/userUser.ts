@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMobileWallet } from "../context";
 import {
+  fetchUserDeposits,
   fetchUserDetails,
   privateUserTransfers,
   sendFeedback,
@@ -8,6 +9,7 @@ import {
 import {
   PaginatedTransfersResponse,
   SendFeedbackInput,
+  UserDeposits,
   UserDetails,
 } from "../types/user";
 
@@ -78,6 +80,28 @@ export const useUserPreviousTransfers = (
       } catch (error) {
         console.log("error fetching previous user transactions ->", error);
         throw error;
+      }
+    },
+    retry: 2,
+    enabled: !!selectedWalletAccount,
+  });
+};
+
+export const useUserDeposits = () => {
+  const { address: selectedWalletAccount } = useMobileWallet();
+
+  return useQuery({
+    queryKey: ["userDeposits", selectedWalletAccount],
+    queryFn: async (): Promise<UserDeposits[]> => {
+      try {
+        if (!selectedWalletAccount) return [];
+
+        const resp = await fetchUserDeposits(selectedWalletAccount);
+
+        return resp?.data ?? [];
+      } catch (error) {
+        console.log("error fetching unspent user deposits ->", error);
+        return [];
       }
     },
     retry: 2,

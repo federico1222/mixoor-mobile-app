@@ -1,4 +1,5 @@
 import { TelegramLogo, XLogo } from "phosphor-react-native";
+import { UserDeposits } from "../types/user";
 
 export const SOCIAL_MEDIA = [
   {
@@ -83,6 +84,75 @@ export const MOCK_TRANSFERS = [
     tokenMetadata: {
       image:
         "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png",
+    },
+  },
+];
+
+export const DEPOSITS_MOCK: UserDeposits[] = [
+  {
+    id: 1,
+    createdAt: new Date("2024-02-15").toISOString(),
+    uiAmount: "1.5",
+    poolAddress: "PoolAddress111111111111111111111111111111111",
+    mintAddress: "So11111111111111111111111111111111111111112",
+    isSpent: false,
+    assetType: "Sol",
+    txSignature: "5J8W...", // Opcional
+    tokenMetadata: {
+      name: "Solana",
+      symbol: "SOL",
+      decimals: 9,
+      image:
+        "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
+    },
+  },
+  {
+    id: 2,
+    createdAt: new Date("2024-02-18").toISOString(),
+    uiAmount: "100.25",
+    poolAddress: "PoolAddress222222222222222222222222222222222",
+    mintAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+    isSpent: false,
+    assetType: "SplToken",
+    txSignature: "3K9X...",
+    tokenMetadata: {
+      name: "USD Coin",
+      symbol: "USDC",
+      decimals: 6,
+      image:
+        "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png",
+    },
+  },
+  {
+    id: 3,
+    createdAt: new Date("2024-02-20").toISOString(),
+    uiAmount: "50000000",
+    poolAddress: "PoolAddress333333333333333333333333333333333",
+    mintAddress: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+    isSpent: true,
+    assetType: "SplToken",
+    tokenMetadata: {
+      name: "Bonk",
+      symbol: "BONK",
+      decimals: 5,
+      image: "https://arweave.net/hQiPZOsRZXGXBJd_82PhVdlM_hACsT_q6wqwf5cSY7I",
+    },
+  },
+  {
+    id: 4,
+    createdAt: new Date("2024-02-22").toISOString(),
+    uiAmount: "0.5",
+    poolAddress: "PoolAddress444444444444444444444444444444444",
+    mintAddress: "So11111111111111111111111111111111111111112",
+    isSpent: false,
+    assetType: "Sol",
+    txSignature: "7P2Q...",
+    tokenMetadata: {
+      name: "Solana",
+      symbol: "SOL",
+      decimals: 9,
+      image:
+        "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
     },
   },
 ];

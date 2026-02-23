@@ -53,3 +53,20 @@ export type PreviousPrivateTransferLogs = {
     decimals?: number;
   };
 };
+
+export type UserDeposits = {
+  id: number;
+  createdAt: string;
+  uiAmount: number | string;
+  poolAddress: string;
+  mintAddress: string;
+  isSpent: boolean;
+  assetType: "Sol" | "SplToken";
+  txSignature?: string; // this is the deposit tx signature
+  tokenMetadata?: {
+    symbol?: string;
+    name?: string;
+    image?: string;
+    decimals?: number;
+  };
+};
