@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { getWalletIcon } from "../helpers";
+import { getClusterFromEndpoint } from "../helpers/misc";
 import { fromLegacyPublicKey } from "../utils";
 
 interface WalletInfo {
@@ -56,7 +57,7 @@ export function MobileWalletProvider({ children }: { children: ReactNode }) {
               uri: "https://mixoor.fun",
               icon: "favicon.ico",
             },
-            chain: "solana:devnet",
+            chain: getClusterFromEndpoint(),
             auth_token: cachedToken ?? undefined,
           });
         } catch {
@@ -90,7 +91,7 @@ export function MobileWalletProvider({ children }: { children: ReactNode }) {
 
       console.log("Connected to:", legacyPubkey.toBase58());
     } catch (error) {
-      console.error("Error connecting wallet:", error);
+      console.log("Error connecting wallet:", error);
       throw error;
     } finally {
       setLoading(false);
