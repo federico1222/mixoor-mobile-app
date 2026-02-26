@@ -4,8 +4,6 @@ import {
 } from "@solana-program/token";
 import { address, type Address } from "@solana/kit";
 import { useQuery } from "@tanstack/react-query";
-import { useContext } from "react";
-import { RpcContext } from "../context";
 import { useMobileWallet } from "@wallet-ui/react-native-kit";
 
 /**
@@ -14,8 +12,7 @@ import { useMobileWallet } from "@wallet-ui/react-native-kit";
  * address changes and is cached by React Query.
  */
 export const useUserSolBalance = () => {
-  const { rpc } = useContext(RpcContext); // FIXME
-  const { account } = useMobileWallet();
+  const { account, client } = useMobileWallet();
 
   return useQuery({
     queryKey: ["userSolBalance", account?.address],
@@ -23,7 +20,8 @@ export const useUserSolBalance = () => {
       if (!account?.address) return 0;
 
       try {
-        return (await rpc.getBalance(address(account?.address)).send()).value;
+        return (await client.rpc.getBalance(address(account?.address)).send())
+          .value;
       } catch (error) {
         console.error("error fetching user balance ->", error);
         throw error;
@@ -44,8 +42,7 @@ export const useUserSPLTokenBalance = (
   tokenProgram: Address = TOKEN_PROGRAM_ADDRESS,
   options?: { enabled?: boolean },
 ) => {
-  const { rpc } = useContext(RpcContext);
-  const { account } = useMobileWallet();
+  const { account, client } = useMobileWallet();
 
   return useQuery({
     queryKey: ["userTokenBalance", mint, tokenProgram],
@@ -59,8 +56,9 @@ export const useUserSPLTokenBalance = (
           mint,
         });
 
-        return (await rpc.getTokenAccountBalance(associatedTokenAddress).send())
-          .value.amount;
+        return (
+          await client.rpc.getTokenAccountBalance(associatedTokenAddress).send()
+        ).value.amount;
       } catch (error) {
         console.error("error fetching token balance ->", error);
         throw error;

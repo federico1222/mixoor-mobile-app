@@ -95,3 +95,19 @@ export async function fetchUserDeposits(
     throw error;
   }
 }
+
+// me endpoint that only returns when user
+// is authenticated
+export async function fetchUserDetailAuthenticated() {
+  try {
+    const cookieHeader = await getSessionCookieHeader();
+    const resp = await fetch(`${BASE_URL}/me`, {
+      headers: cookieHeader,
+    });
+
+    return resp.json();
+  } catch (error) {
+    console.log("error fetching logged in details");
+    throw error;
+  }
+}

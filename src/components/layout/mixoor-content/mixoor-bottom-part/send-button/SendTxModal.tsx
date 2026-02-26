@@ -9,6 +9,7 @@ import { Button, Text, XStack, YStack } from "tamagui";
 import DialogTransferView from "./DialogTransferView";
 import MultiRecipientCollapsible from "./MultiRecipientCollapsible";
 import { useMobileWallet } from "@wallet-ui/react-native-kit";
+import { useDeposit } from "@/src/hooks/useProgramIxs";
 
 export default function SendTxModal({
   open,
@@ -25,6 +26,8 @@ export default function SendTxModal({
     isMultipleWallets,
     address: recipientAddress,
   } = useTransferInput();
+
+  const { deposit } = useDeposit();
 
   const { selectedToken } = useTokenSelection();
   const { confirmationPopUpText, totalUiAmount } =
@@ -124,7 +127,12 @@ export default function SendTxModal({
         </XStack>
 
         {account?.address && (
-          <Button height={"$4"} bg={error ? "#321812" : "#5D44BE"}>
+          <Button
+            // onPress={() => console.log("send was clicked")}
+            onPress={deposit}
+            height={"$4"}
+            bg={error ? "#321812" : "#5D44BE"}
+          >
             <Text color={error ? "#FFC1B2" : "$secondary"}>Send</Text>
 
             <PaperPlaneTiltIcon size={16} color="#CCCFF9" />

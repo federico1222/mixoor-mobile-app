@@ -1,3 +1,5 @@
+import { Lamports } from "@solana/kit";
+
 export type TransferType = "direct" | "delayed";
 
 export type TransferInput = {
@@ -76,3 +78,18 @@ type StartWalletAuthDataResp = {
   authenticated?: boolean;
 };
 export type StartWalletAuthResp = ApiResponse<StartWalletAuthDataResp>;
+
+export type UserToken = {
+  mintAddress: string;
+  name: string;
+  symbol: string;
+  description: string;
+  supply: number;
+  decimals: number;
+  uri: string;
+  tokenProgram: string;
+  image: string | null;
+  imageUri: string;
+  price?: number;
+  balance: number | string | Lamports; // token amount, not yet scaled to UI vals
+};
