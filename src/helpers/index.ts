@@ -1,13 +1,20 @@
 import { address } from "@solana/kit";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   MIN_SOL_UI_AMOUNT,
   MIN_SPL_UI_AMOUNT,
   MIN_USDC_DEPOSIT,
+  SESSION_COOKIE_KEY,
   USDC_MINT,
   WRAPPED_SOL_MINT_TOKEN_PROGRAM,
 } from "../constants";
 import { WALLET_ICONS } from "../data";
 import { UserToken } from "../provider";
+
+export async function getSessionCookieHeader(): Promise<HeadersInit> {
+  const cookie = await AsyncStorage.getItem(SESSION_COOKIE_KEY);
+  return cookie ? { Cookie: cookie } : {};
+}
 
 export function formatAddress(
   address: string,

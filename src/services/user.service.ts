@@ -1,5 +1,6 @@
 import { MIXOOR_BACKEND_API_ENDPOINT } from "../config";
 import { CreateUserPayload } from "../types/user";
+import { getSessionCookieHeader } from "../helpers";
 
 export const BASE_URL = `${MIXOOR_BACKEND_API_ENDPOINT}/users`;
 
@@ -58,10 +59,12 @@ export async function privateUserTransfers(
 ) {
   try {
     const url = `${BASE_URL}/address/${userAddress}/transfers`;
+    const cookieHeader = await getSessionCookieHeader();
     const resp = await fetch(
       `${url}?limit=${limit}&offset=${offset}&sortOrder=${sortOrder}`,
       {
         credentials: "include",
+        headers: cookieHeader,
       },
     );
 
@@ -77,10 +80,12 @@ export async function fetchUserDeposits(
   status: "all" | "unspent" = "unspent",
 ) {
   try {
+    const cookieHeader = await getSessionCookieHeader();
     const resp = await fetch(
       `${BASE_URL}/address/${userAddress}/deposits?status=${status}`,
       {
         credentials: "include",
+        headers: cookieHeader,
       },
     );
 

@@ -1,5 +1,5 @@
 import { WRAPPED_SOL_MINT_TOKEN_PROGRAM } from "@/src/constants";
-import { useMobileWallet } from "@/src/context";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { getMinAmount, getMintAddress, transformIpfsLink } from "@/src/helpers";
 import { scaleToUIAmount } from "@/src/helpers/calculations";
 import {
@@ -31,7 +31,7 @@ export default function MultiSendingAmountInput({
   placeholder = "Enter Sending Amount",
 }: MultiSendingAmountInputProps) {
   const { selectedToken } = useTokenSelection();
-  const { address: selectedWalletAccount } = useMobileWallet();
+  const { account } = useMobileWallet();
 
   const { totalAmount } = useTransferInput();
 
@@ -46,7 +46,7 @@ export default function MultiSendingAmountInput({
   const solBalanceQuery = useUserSolBalance();
   const splBalanceQuery = useUserSPLTokenBalance(
     mintAddress,
-    address(selectedToken?.tokenProgram ?? TOKEN_PROGRAM_ADDRESS)
+    address(selectedToken?.tokenProgram ?? TOKEN_PROGRAM_ADDRESS),
   );
 
   const { data: tokenBalance, isLoading } = isSol
@@ -55,7 +55,7 @@ export default function MultiSendingAmountInput({
 
   const tokenBalanceUI = scaleToUIAmount(
     tokenBalance,
-    selectedToken?.decimals ?? 0
+    selectedToken?.decimals ?? 0,
   );
 
   const handleHalfClick = useCallback(() => {
@@ -67,7 +67,7 @@ export default function MultiSendingAmountInput({
 
     if (half < (minAmount ?? 0)) {
       setError(
-        `Minimum amount is ${minAmount} ${selectedToken?.symbol || "SOL"}`
+        `Minimum amount is ${minAmount} ${selectedToken?.symbol || "SOL"}`,
       );
       return;
     }
@@ -84,7 +84,7 @@ export default function MultiSendingAmountInput({
 
     if (balanceNum < (minAmount ?? 0)) {
       setError(
-        `Minimum amount is ${minAmount} ${selectedToken?.symbol || "SOL"}`
+        `Minimum amount is ${minAmount} ${selectedToken?.symbol || "SOL"}`,
       );
       return;
     }
@@ -108,7 +108,7 @@ export default function MultiSendingAmountInput({
 
     if (inputAmount > 0 && inputAmount < (minAmount ?? 0)) {
       setError(
-        `Minimum amount is ${minAmount} ${selectedToken?.symbol || "SOL"}`
+        `Minimum amount is ${minAmount} ${selectedToken?.symbol || "SOL"}`,
       );
       return;
     }
@@ -126,15 +126,15 @@ export default function MultiSendingAmountInput({
       setError(
         `Amount exceeds balance. Available: ${balanceNum.toFixed(2)} ${
           selectedToken?.symbol || "SOL"
-        }`
+        }`,
       );
     } else if (newTotal > balanceNum) {
       setError(
         `Total amount exceeds balance. Total: ${newTotal.toFixed(
-          2
+          2,
         )}, Available: ${balanceNum.toFixed(2)} ${
           selectedToken?.symbol || "SOL"
-        }`
+        }`,
       );
     } else {
       setError("");
@@ -154,7 +154,7 @@ export default function MultiSendingAmountInput({
 
     if (inputAmount > 0 && inputAmount < (minAmount ?? 0)) {
       setError(
-        `Minimum amount is ${minAmount} ${selectedToken?.symbol || "SOL"}`
+        `Minimum amount is ${minAmount} ${selectedToken?.symbol || "SOL"}`,
       );
       return;
     }
@@ -167,13 +167,13 @@ export default function MultiSendingAmountInput({
       setError(
         `Amount exceeds balance. Available: ${balance.toFixed(2)} ${
           selectedToken?.symbol || "SOL"
-        }`
+        }`,
       );
     } else if (totalAmount > balance) {
       setError(
         `Total amount exceeds balance. Total: ${totalAmount.toFixed(
-          2
-        )}, Available: ${balance.toFixed(2)} ${selectedToken?.symbol || "SOL"}`
+          2,
+        )}, Available: ${balance.toFixed(2)} ${selectedToken?.symbol || "SOL"}`,
       );
     } else {
       setError("");
@@ -214,7 +214,7 @@ export default function MultiSendingAmountInput({
                   uri: transformIpfsLink(
                     selectedToken?.image ||
                       selectedToken?.imageUri ||
-                      selectedToken?.uri
+                      selectedToken?.uri,
                   ),
                 }}
                 width={20}
@@ -263,7 +263,7 @@ export default function MultiSendingAmountInput({
         {/* HALF/MAX Button */}
         <XStack justify="space-between" items="center">
           <Text fontSize={12} fontWeight="400" color="#BBBBBB">
-            Balance {selectedWalletAccount ? tokenBalanceUI : 0}{" "}
+            Balance {account?.address ? tokenBalanceUI : 0}{" "}
             {selectedToken?.symbol || "SOL"}
           </Text>
 

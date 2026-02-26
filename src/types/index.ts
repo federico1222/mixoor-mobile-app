@@ -70,3 +70,9 @@ export type TransferSparsedPayload = {
   // if sending to multiple recipients
   multiRecipients?: MultiRecipient[];
 };
+
+type StartWalletAuthDataResp = {
+  message: string;
+  authenticated?: boolean;
+};
+export type StartWalletAuthResp = ApiResponse<StartWalletAuthDataResp>;

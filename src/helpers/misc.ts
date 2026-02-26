@@ -1,9 +1,23 @@
-import { SOLANA_RPC_ENDPOINT } from "../config";
+import {
+  createSolanaDevnet,
+  createSolanaMainnet,
+  createSolanaTestnet,
+} from "@wallet-ui/core";
+import { SOLANA_RPC_ENDPOINT, SOLANA_RPC_SUBSCRIPTIONS_ENDPOINT } from "../config";
+
+export function getSolanaNetwork() {
+  const url = SOLANA_RPC_ENDPOINT ?? "https://api.mainnet-beta.solana.com";
+  const urlWs = SOLANA_RPC_SUBSCRIPTIONS_ENDPOINT;
+
+  if (url.includes("devnet")) return createSolanaDevnet({ url, urlWs });
+  if (url.includes("testnet")) return createSolanaTestnet({ url, urlWs });
+  return createSolanaMainnet({ url, urlWs });
+}
 
 /**
- * Returns chains config to send a transaction
+ * Returns the Solana cluster ID derived from the RPC endpoint
  */
-export function getClusterFromEndpoint() {
+export function getSolanaClusterId() {
   if (!SOLANA_RPC_ENDPOINT) return;
 
   switch (true) {

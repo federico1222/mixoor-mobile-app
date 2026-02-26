@@ -1,5 +1,4 @@
 import CustomDialog from "@/src/components/common/CustomDialog";
-import { useMobileWallet } from "@/src/context";
 import { useAddressValidation } from "@/src/hooks/useAddressValidation";
 import { useUserDeposits } from "@/src/hooks/userUser";
 import { sparsedTransferFromBE } from "@/src/services/transfer.service";
@@ -9,6 +8,7 @@ import { Dispatch, SetStateAction, useCallback, useState } from "react";
 import { Button, Text, YStack } from "tamagui";
 import DialogWithdrawView from "./DialogWithdrawView";
 import WithdrawModalBody from "./WithdrawModalBody";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 
 interface WithdrawModalProps {
   open: boolean;
@@ -26,7 +26,7 @@ export default function WithdrawModal({
   const [withdrawSuccess, setWithdrawSuccess] = useState<boolean>(false);
   const [withdrawError, setWithdrawError] = useState<boolean>(false);
 
-  const { address: selectedWalletAccount } = useMobileWallet();
+  const { account } = useMobileWallet();
 
   const { validationState } = useAddressValidation(recipientAddress);
   const { refetch } = useUserDeposits();
@@ -39,13 +39,13 @@ export default function WithdrawModal({
   }, [setRecipientAddress, setWithdrawSuccess, setWithdrawError, refetch]);
 
   const handleWithdraw = async () => {
-    if (!recipientAddress || !selectedWalletAccount) return;
+    if (!recipientAddress || !account?.address) return;
 
     try {
       setIsLoading(true);
 
       await sparsedTransferFromBE({
-        userAddress: selectedWalletAccount,
+        userAddress: account?.address,
         depositId: depositDetails.id,
         recipientAddress:
           validationState?.resolvedSNSdAddress || recipientAddress,
@@ -112,8 +112,8 @@ export default function WithdrawModal({
             {withdrawSuccess
               ? "Close"
               : withdrawError
-              ? "Retry"
-              : "Transfer Privately"}
+                ? "Retry"
+                : "Transfer Privately"}
           </Text>
           {!withdrawSuccess && <PaperPlaneTiltIcon size={16} color="#CCCFF9" />}
         </Button>

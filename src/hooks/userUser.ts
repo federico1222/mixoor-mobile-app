@@ -1,5 +1,4 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useMobileWallet } from "../context";
 import {
   fetchUserDeposits,
   fetchUserDetails,
@@ -12,6 +11,7 @@ import {
   UserDeposits,
   UserDetails,
 } from "../types/user";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 
 export function useSendFeedback() {
   return useMutation({
@@ -21,15 +21,15 @@ export function useSendFeedback() {
 }
 
 export const useUserDetails = () => {
-  const { address: walletAddress } = useMobileWallet();
+  const { account } = useMobileWallet();
 
   return useQuery<UserDetails | null>({
-    queryKey: ["userDetails", walletAddress],
+    queryKey: ["userDetails", account?.address],
     queryFn: async (): Promise<UserDetails | null> => {
-      if (!walletAddress) return null;
+      if (!account?.address) return null;
 
       try {
-        const resp = await fetchUserDetails(walletAddress);
+        const resp = await fetchUserDetails(account?.address);
 
         if (!resp || !resp.data) {
           return null;
@@ -42,7 +42,7 @@ export const useUserDetails = () => {
       }
     },
     retry: 2,
-    enabled: !!walletAddress,
+    enabled: !!account?.address,
   });
 };
 
@@ -51,13 +51,13 @@ export const useUserPreviousTransfers = (
   offset: number = 0,
   sortOrder: "asc" | "desc" = "desc",
 ) => {
-  const { address: selectedWalletAccount } = useMobileWallet();
+  const { account } = useMobileWallet();
 
   return useQuery({
     queryKey: ["userTransfers", limit, offset, sortOrder],
     queryFn: async (): Promise<PaginatedTransfersResponse> => {
       try {
-        if (!selectedWalletAccount) {
+        if (!account?.address) {
           return {
             success: "no wallet connected",
             data: [],
@@ -71,40 +71,40 @@ export const useUserPreviousTransfers = (
         }
 
         const resp = await privateUserTransfers(
-          selectedWalletAccount,
+          account?.address,
           limit,
           offset,
           sortOrder,
         );
         return resp;
       } catch (error) {
-        console.log("error fetching previous user transactions ->", error);
+        console.error("error fetching previous user transactions ->", error);
         throw error;
       }
     },
     retry: 2,
-    enabled: !!selectedWalletAccount,
+    enabled: !!account?.address,
   });
 };
 
 export const useUserDeposits = () => {
-  const { address: selectedWalletAccount } = useMobileWallet();
+  const { account } = useMobileWallet();
 
   return useQuery({
-    queryKey: ["userDeposits", selectedWalletAccount],
+    queryKey: ["userDeposits", account?.address],
     queryFn: async (): Promise<UserDeposits[]> => {
       try {
-        if (!selectedWalletAccount) return [];
+        if (!account?.address) return [];
 
-        const resp = await fetchUserDeposits(selectedWalletAccount);
+        const resp = await fetchUserDeposits(account?.address);
 
         return resp?.data ?? [];
       } catch (error) {
-        console.log("error fetching unspent user deposits ->", error);
+        console.error("error fetching unspent user deposits ->", error);
         return [];
       }
     },
     retry: 2,
-    enabled: !!selectedWalletAccount,
+    enabled: !!account?.address,
   });
 };

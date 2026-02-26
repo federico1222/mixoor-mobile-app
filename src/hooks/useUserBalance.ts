@@ -5,7 +5,8 @@ import {
 import { address, type Address } from "@solana/kit";
 import { useQuery } from "@tanstack/react-query";
 import { useContext } from "react";
-import { RpcContext, useMobileWallet } from "../context";
+import { RpcContext } from "../context";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 
 /**
  * Fetches the connected user's native SOL balance (in lamports)
@@ -13,22 +14,22 @@ import { RpcContext, useMobileWallet } from "../context";
  * address changes and is cached by React Query.
  */
 export const useUserSolBalance = () => {
-  const { rpc } = useContext(RpcContext);
-  const { address: walletAddress } = useMobileWallet();
+  const { rpc } = useContext(RpcContext); // FIXME
+  const { account } = useMobileWallet();
 
   return useQuery({
-    queryKey: ["userSolBalance", walletAddress],
+    queryKey: ["userSolBalance", account?.address],
     queryFn: async () => {
-      if (!walletAddress) return 0;
+      if (!account?.address) return 0;
 
       try {
-        return (await rpc.getBalance(address(walletAddress)).send()).value;
+        return (await rpc.getBalance(address(account?.address)).send()).value;
       } catch (error) {
-        console.log("error fetching user balance ->", error);
+        console.error("error fetching user balance ->", error);
         throw error;
       }
     },
-    enabled: !!walletAddress,
+    enabled: !!account?.address,
     retry: 2,
   });
 };
@@ -41,19 +42,19 @@ export const useUserSolBalance = () => {
 export const useUserSPLTokenBalance = (
   mint: Address,
   tokenProgram: Address = TOKEN_PROGRAM_ADDRESS,
-  options?: { enabled?: boolean }
+  options?: { enabled?: boolean },
 ) => {
   const { rpc } = useContext(RpcContext);
-  const { address } = useMobileWallet();
+  const { account } = useMobileWallet();
 
   return useQuery({
     queryKey: ["userTokenBalance", mint, tokenProgram],
     queryFn: async () => {
       try {
-        if (!address) return 0;
+        if (!account?.address) return 0;
 
         const [associatedTokenAddress] = await findAssociatedTokenPda({
-          owner: address,
+          owner: account?.address,
           tokenProgram,
           mint,
         });
@@ -61,7 +62,7 @@ export const useUserSPLTokenBalance = (
         return (await rpc.getTokenAccountBalance(associatedTokenAddress).send())
           .value.amount;
       } catch (error) {
-        console.log("error fetching token balance ->", error);
+        console.error("error fetching token balance ->", error);
         throw error;
       }
     },

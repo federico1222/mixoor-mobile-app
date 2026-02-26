@@ -12,11 +12,11 @@ export async function resolveSnsDomain(domain: string): Promise<string | null> {
         headers: {
           Accept: "application/json",
         },
-      }
+      },
     );
 
     if (!response.ok) {
-      console.log("Response not OK, status:", response.status);
+      console.error("Response not OK, status:", response.status);
       return null;
     }
 
@@ -61,6 +61,6 @@ export function isSnsDomainFormat(input: string): boolean {
   const trimmed = input.trim();
 
   return /^[a-zA-Z0-9][a-zA-Z0-9-]*\.(sol|skr|backpack|pussy|bonk|abc|oorc|mbs|pog|nala|toly|gog|monke|portal)$/i.test(
-    trimmed
+    trimmed,
   );
 }

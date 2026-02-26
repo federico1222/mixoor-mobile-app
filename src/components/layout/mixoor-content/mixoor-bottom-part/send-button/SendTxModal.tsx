@@ -1,5 +1,4 @@
 import CustomDialog from "@/src/components/common/CustomDialog";
-import { useMobileWallet } from "@/src/context";
 import { formatAddress } from "@/src/helpers";
 import { calculateTransferFee } from "@/src/helpers/calculations";
 import { useTransferButtonValidations } from "@/src/hooks/useTransferButtonValidations";
@@ -9,6 +8,7 @@ import { Dispatch, SetStateAction } from "react";
 import { Button, Text, XStack, YStack } from "tamagui";
 import DialogTransferView from "./DialogTransferView";
 import MultiRecipientCollapsible from "./MultiRecipientCollapsible";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 
 export default function SendTxModal({
   open,
@@ -29,7 +29,7 @@ export default function SendTxModal({
   const { selectedToken } = useTokenSelection();
   const { confirmationPopUpText, totalUiAmount } =
     useTransferButtonValidations();
-  const { address: selectedWalletAccount } = useMobileWallet();
+  const { account } = useMobileWallet();
 
   const error = false;
   const success = false;
@@ -123,7 +123,7 @@ export default function SendTxModal({
           </Text>
         </XStack>
 
-        {selectedWalletAccount && (
+        {account?.address && (
           <Button height={"$4"} bg={error ? "#321812" : "#5D44BE"}>
             <Text color={error ? "#FFC1B2" : "$secondary"}>Send</Text>
 

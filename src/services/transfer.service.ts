@@ -17,7 +17,7 @@ export const BASE_URL = `${MIXOOR_BACKEND_API_ENDPOINT}/transfer`;
  * @throws error if fetch fails
  */
 export async function directTransferFromBE(
-  data: TransferPayload
+  data: TransferPayload,
 ): Promise<DirectTransferResp> {
   try {
     const resp = await fetch(`${BASE_URL}/direct`, {
@@ -47,7 +47,7 @@ export async function directTransferFromBE(
  * @throws error if fetch fails
  */
 export async function sparsedTransferFromBE(
-  data: TransferSparsedPayload
+  data: TransferSparsedPayload,
 ): Promise<TransferSparsedResp> {
   try {
     const resp = await fetch(`${BASE_URL}/sparsed`, {
