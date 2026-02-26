@@ -49,7 +49,7 @@ export const useUserDetails = () => {
 export const useUserPreviousTransfers = (
   limit: number = 10,
   offset: number = 0,
-  sortOrder: "asc" | "desc" = "desc"
+  sortOrder: "asc" | "desc" = "desc",
 ) => {
   const { address: selectedWalletAccount } = useMobileWallet();
 
@@ -74,7 +74,7 @@ export const useUserPreviousTransfers = (
           selectedWalletAccount,
           limit,
           offset,
-          sortOrder
+          sortOrder,
         );
         return resp;
       } catch (error) {

@@ -14,7 +14,7 @@ export async function logout() {
 
     return resp.json();
   } catch (error) {
-    console.log("error signing out ->", error);
+    console.error("error signing out ->", error);
     throw error;
   }
 }
