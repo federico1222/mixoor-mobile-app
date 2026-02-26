@@ -4,12 +4,15 @@ import { calculateTransferFee } from "@/src/helpers/calculations";
 import { useTransferButtonValidations } from "@/src/hooks/useTransferButtonValidations";
 import { useTokenSelection, useTransferInput } from "@/src/provider";
 import { PaperPlaneTiltIcon } from "phosphor-react-native";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useCallback } from "react";
 import { Button, Text, XStack, YStack } from "tamagui";
 import DialogTransferView from "./DialogTransferView";
 import MultiRecipientCollapsible from "./MultiRecipientCollapsible";
 import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { useDeposit } from "@/src/hooks/useProgramIxs";
+import { useTransferWithToasts } from "@/src/hooks/useTransferWithToasts";
+import { useAddressValidation } from "@/src/hooks/useAddressValidation";
+import { useRiskCheck } from "@/src/hooks/useRiskCheck";
 
 export default function SendTxModal({
   open,
@@ -26,6 +29,9 @@ export default function SendTxModal({
     isMultipleWallets,
     address: recipientAddress,
   } = useTransferInput();
+  const { handleTransfer } = useTransferWithToasts();
+  const { validationState } = useAddressValidation(recipientAddress);
+  const { checkAddressRisk, isChecking } = useRiskCheck();
 
   const { deposit } = useDeposit();
 
@@ -39,6 +45,58 @@ export default function SendTxModal({
 
   // TODO: work here
   // TODO: work here
+  const handleTransferPrivately = useCallback(async () => {
+    if (!account || !selectedToken) return;
+
+    try {
+      // setIsLoading(true);
+
+      // if (isBalanceExceeded && isMultipleWallets) {
+      //   showBalanceErrorToast();
+      //   setIsLoading(false);
+      //   return;
+      // }
+
+      // if (isBelowMinimum) {
+      //   showMinimumDepositToast();
+      //   setIsLoading(false);
+      //   return;
+      // }
+
+      // Check risk for depositor's address before proceeding
+      const isAllowed = await checkAddressRisk(account.address);
+      if (!isAllowed) {
+        // setIsLoading(false);
+        return;
+      }
+
+      await handleTransfer({
+        uiAmount,
+        recipientAddress:
+          validationState?.resolvedSNSdAddress || recipientAddress,
+        selectedToken,
+        userAddress: account.address,
+        isMultipleWallets,
+        transferInput,
+        transferType,
+      });
+    } finally {
+      // setIsLoading(false);
+      // refetchTransfers();
+      // refetchDeposits();
+    }
+  }, [
+    account,
+    checkAddressRisk,
+    handleTransfer,
+    isMultipleWallets,
+    recipientAddress,
+    selectedToken,
+    transferInput,
+    transferType,
+    uiAmount,
+    validationState?.resolvedSNSdAddress,
+  ]);
 
   return (
     <CustomDialog id="tx-modal" open={open} setOpen={setOpen} trigger={null}>
@@ -128,8 +186,7 @@ export default function SendTxModal({
 
         {account?.address && (
           <Button
-            // onPress={() => console.log("send was clicked")}
-            onPress={deposit}
+            onPress={handleTransferPrivately}
             height={"$4"}
             bg={error ? "#321812" : "#5D44BE"}
           >
