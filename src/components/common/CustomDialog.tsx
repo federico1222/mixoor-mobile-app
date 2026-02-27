@@ -26,11 +26,15 @@ export default function CustomDialog({
 
       <Dialog.Portal key={`portal-${id}`} mx={10}>
         <Dialog.Overlay
+          position="absolute"
+          style={{ zIndex: 10000 }}
           bg={"rgba(0, 0, 0, 0.60)"}
           backdropFilter={"blur(5px)"}
         />
 
         <Dialog.Content
+          position="absolute"
+          style={{ zIndex: 10000 }}
           p={24}
           rounded={20}
           width={"100%"}

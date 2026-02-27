@@ -3,10 +3,7 @@ import {
   findVaultAddress,
   getDepositInstructionAsync,
 } from "@smithii_io/mixoor";
-import {
-  MerkleTreeLocal as MerkleTree,
-  generateCommitmentLocal as generateCommitment,
-} from "../helpers/merkle";
+import { findAssociatedTokenPda } from "@solana-program/token";
 import {
   address,
   appendTransactionMessageInstructions,
@@ -19,25 +16,28 @@ import {
   type Address,
   type Signature,
 } from "@solana/kit";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { randomBytes } from "crypto";
 import { useCallback, useState } from "react";
-import { MultiRecipient } from "../types";
-import { useMobileWallet } from "@wallet-ui/react-native-kit";
-import { useTokenSelection, useTransferInput } from "../provider";
-import { useTransactionSigner } from "./useTransactionSigner";
-import { findAssociatedTokenPda } from "@solana-program/token";
+import { RELAYER_ADDRESS } from "../constants";
 import {
   calculateTransactionFeeLamports,
   calculateTransferFee,
   scaleToTokenAmount,
 } from "../helpers/calculations";
 import {
-  determineAssetType,
+  MerkleTreeLocal as MerkleTree,
+  generateCommitmentLocal as generateCommitment,
+} from "../helpers/merkle";
+import {
   AssetType,
+  determineAssetType,
   transferLamportsInstruction,
 } from "../helpers/misc";
-import { RELAYER_ADDRESS } from "../constants";
 import { confirmTransactionStatusWithRetry } from "../helpers/rpc";
+import { useTokenSelection, useTransferInput } from "../provider";
+import { MultiRecipient } from "../types";
+import { useTransactionSigner } from "./useTransactionSigner";
 
 /** Single recipient deposit result */
 type SingleDepositResult = {
@@ -104,7 +104,7 @@ export const useDeposit = () => {
         secret,
         nullifier,
         scaledAmount,
-        pool,
+        pool
       );
 
       // Insert new commitment and get new root
@@ -132,7 +132,7 @@ export const useDeposit = () => {
       getSendingSigner,
       selectedToken?.mintAddress,
       selectedToken?.tokenProgram,
-    ],
+    ]
   );
 
   /**
@@ -184,7 +184,7 @@ export const useDeposit = () => {
       });
       const noOfRecipients = isMultipleWallets
         ? transferInput.filter(
-            (ti) => ti.address?.trim() && Number(ti.uiAmount) > 0,
+            (ti) => ti.address?.trim() && Number(ti.uiAmount) > 0
           ).length
         : 1;
       const txFee = calculateTransactionFeeLamports(assetType, noOfRecipients);
@@ -237,7 +237,7 @@ export const useDeposit = () => {
           (tx) => appendTransactionMessageInstructions(instructions, tx),
           (tx) => setTransactionMessageFeePayerSigner(sendingSigner, tx),
           (tx) =>
-            setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+            setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx)
         );
         const tx = compileTransaction(transactionMessage);
 
@@ -249,10 +249,10 @@ export const useDeposit = () => {
 
         const isConfirmedResp = await confirmTransactionStatusWithRetry(
           client,
-          [txSignature],
+          [txSignature]
         );
         const isConfirmed = isConfirmedResp.every(
-          (s) => s !== null && s.err === null,
+          (s) => s !== null && s.err === null
         );
         if (!isConfirmed) throw new Error("Transaction error or confirm fail");
 
@@ -273,7 +273,7 @@ export const useDeposit = () => {
         // Single recipient deposit
         const scaledAmount = scaleToTokenAmount(
           uiAmount,
-          selectedToken.decimals,
+          selectedToken.decimals
         );
 
         const result = await constructDepositInstruction({
@@ -307,7 +307,7 @@ export const useDeposit = () => {
           (tx) => appendTransactionMessageInstructions(instructions, tx),
           (tx) => setTransactionMessageFeePayerSigner(sendingSigner, tx),
           (tx) =>
-            setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+            setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx)
         );
         const tx = compileTransaction(transactionMessage);
 
@@ -318,10 +318,10 @@ export const useDeposit = () => {
 
         const isConfirmedResp = await confirmTransactionStatusWithRetry(
           client,
-          [txSignature],
+          [txSignature]
         );
         const isConfirmed = isConfirmedResp.every(
-          (s) => s !== null && s.err === null,
+          (s) => s !== null && s.err === null
         );
         if (!isConfirmed) throw new Error("Transaction error or confirm fail");
 
@@ -338,7 +338,7 @@ export const useDeposit = () => {
       }
     } catch (err) {
       setIsLoading(false);
-      console.error("deposit Error:", err);
+      console.log("deposit Error:", err);
       throw err;
     }
   }, [

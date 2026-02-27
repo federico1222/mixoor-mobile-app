@@ -23,7 +23,7 @@ export async function depositFromBE(data: DepositPayload) {
 
     return result;
   } catch (error) {
-    console.error("error calling deposit", error);
+    console.log("error calling deposit", error);
     throw error;
   }
 }

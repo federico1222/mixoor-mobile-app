@@ -1,6 +1,7 @@
-import { getBase58Codec, getUtf8Codec } from "@solana/kit";
-import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getBase58Codec, getUtf8Codec } from "@solana/kit";
+import { useQueryClient } from "@tanstack/react-query";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { useCallback, useState } from "react";
 import { SESSION_COOKIE_KEY } from "../constants";
 import {
@@ -8,7 +9,6 @@ import {
   logout,
   startWalletAuth,
 } from "../services/auth.service";
-import { useQueryClient } from "@tanstack/react-query";
 
 export function useSignIn() {
   const [isLoading, setIsLoading] = useState(false);
@@ -40,13 +40,13 @@ export function useSignIn() {
       if (finishResp.sessionCookie) {
         await AsyncStorage.setItem(
           SESSION_COOKIE_KEY,
-          finishResp.sessionCookie,
+          finishResp.sessionCookie
         );
       }
 
       return true;
     } catch (error) {
-      console.error("Sign in error:", error);
+      console.log("Sign in error:", error);
       return false;
     } finally {
       setIsLoading(false);
@@ -66,7 +66,7 @@ export function useSignOut() {
     try {
       await logout();
     } catch (error) {
-      console.error("Logout error:", error);
+      console.log("Logout error:", error);
     } finally {
       await AsyncStorage.removeItem(SESSION_COOKIE_KEY);
       await disconnect();

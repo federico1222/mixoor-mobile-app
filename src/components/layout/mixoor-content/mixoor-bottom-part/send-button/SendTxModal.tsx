@@ -1,19 +1,19 @@
 import CustomDialog from "@/src/components/common/CustomDialog";
 import { formatAddress } from "@/src/helpers";
 import { calculateTransferFee } from "@/src/helpers/calculations";
+import { useAddressValidation } from "@/src/hooks/useAddressValidation";
+import { useRiskCheck } from "@/src/hooks/useRiskCheck";
 import { useTransferButtonValidations } from "@/src/hooks/useTransferButtonValidations";
+import { useTransferValidation } from "@/src/hooks/useTransferValidation";
+import { useTransferWithToasts } from "@/src/hooks/useTransferWithToasts";
 import { useTokenSelection, useTransferInput } from "@/src/provider";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { PaperPlaneTiltIcon } from "phosphor-react-native";
 import { Dispatch, SetStateAction, useCallback, useEffect } from "react";
 import { ActivityIndicator } from "react-native";
 import { Button, Text, XStack, YStack } from "tamagui";
 import DialogTransferView from "./DialogTransferView";
 import MultiRecipientCollapsible from "./MultiRecipientCollapsible";
-import { useMobileWallet } from "@wallet-ui/react-native-kit";
-import { useTransferWithToasts } from "@/src/hooks/useTransferWithToasts";
-import { useAddressValidation } from "@/src/hooks/useAddressValidation";
-import { useRiskCheck } from "@/src/hooks/useRiskCheck";
-import { useTransferValidation } from "@/src/hooks/useTransferValidation";
 
 export default function SendTxModal({
   open,
@@ -37,12 +37,14 @@ export default function SendTxModal({
   const { checkAddressRisk, isChecking } = useRiskCheck();
 
   const { selectedToken } = useTokenSelection();
+
   const {
     confirmationPopUpText,
     totalUiAmount,
     transferBtnText,
     isButtonDisabled,
   } = useTransferButtonValidations();
+
   const {
     isBalanceExceeded,
     showBalanceErrorToast,
@@ -193,13 +195,20 @@ export default function SendTxModal({
             opacity={isLoading || isChecking ? 0.7 : 1}
           >
             {isLoading || isChecking ? (
-              <ActivityIndicator size="small" color="#CCCFF9" />
+              <ActivityIndicator
+                size="small"
+                color={error ? "#FFC1B2" : "#CCCFF9"}
+              />
             ) : (
               <>
                 <Text color={error ? "#FFC1B2" : "$secondary"}>
                   {transferBtnText}
                 </Text>
-                <PaperPlaneTiltIcon size={16} color="#CCCFF9" />
+
+                <PaperPlaneTiltIcon
+                  size={16}
+                  color={error ? "#FFC1B2" : "#CCCFF9"}
+                />
               </>
             )}
           </Button>

@@ -1,5 +1,5 @@
-import { address } from "@solana/kit";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { address } from "@solana/kit";
 import {
   MIN_SOL_UI_AMOUNT,
   MIN_SPL_UI_AMOUNT,
@@ -20,7 +20,7 @@ export function formatAddress(
   address: string,
   start: number,
   end: number,
-  end2: number,
+  end2: number
 ) {
   if (!address) return null;
   return (

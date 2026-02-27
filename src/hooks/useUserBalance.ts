@@ -23,7 +23,7 @@ export const useUserSolBalance = () => {
         return (await client.rpc.getBalance(address(account?.address)).send())
           .value;
       } catch (error) {
-        console.error("error fetching user balance ->", error);
+        console.log("error fetching user balance ->", error);
         throw error;
       }
     },
@@ -40,7 +40,7 @@ export const useUserSolBalance = () => {
 export const useUserSPLTokenBalance = (
   mint: Address,
   tokenProgram: Address = TOKEN_PROGRAM_ADDRESS,
-  options?: { enabled?: boolean },
+  options?: { enabled?: boolean }
 ) => {
   const { account, client } = useMobileWallet();
 
@@ -60,7 +60,7 @@ export const useUserSPLTokenBalance = (
           await client.rpc.getTokenAccountBalance(associatedTokenAddress).send()
         ).value.amount;
       } catch (error) {
-        console.error("error fetching token balance ->", error);
+        console.log("error fetching token balance ->", error);
         throw error;
       }
     },
