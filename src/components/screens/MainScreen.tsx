@@ -1,4 +1,3 @@
-import { useMobileWallet } from "@/src/context";
 import { useWalletSession } from "@/src/hooks/useWalletSession";
 import { useUserDetails } from "@/src/hooks/userUser";
 import { YStack } from "tamagui";
@@ -8,10 +7,13 @@ import AppLayout from "../layout/AppLayout";
 import MixoorContent from "../layout/mixoor-content/MixoorContent";
 import MixoorDepositTable from "../layout/mixoor-content/mixoor-deposit-table/MixoorDepositTable";
 import MixoorTable from "../layout/mixoor-content/mixoor-table/MixoorTable";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 
 export default function MainScreen() {
-  const { address: walletAddress } = useMobileWallet();
+  const { account } = useMobileWallet();
   const { data: userDetails, isFetched } = useUserDetails();
+
+  console.log("connected account", account); // ! DEBUG STATEMENT
 
   /*
    * Handle wallet session lifecycle (logout on account change, auto-auth)
@@ -24,7 +26,7 @@ export default function MainScreen() {
    * - user data fetched
    * - no user exists yet for this wallet
    */
-  if (walletAddress && isFetched && !userDetails) {
+  if (account && isFetched && !userDetails) {
     return <SetUserNameModal />;
   }
 

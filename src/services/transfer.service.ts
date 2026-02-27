@@ -31,7 +31,7 @@ export async function directTransferFromBE(
 
     return await resp.json();
   } catch (error) {
-    console.error("error calling direct transfer ->", error);
+    console.log("error calling direct transfer ->", error);
     throw error;
   }
 }
@@ -60,7 +60,7 @@ export async function sparsedTransferFromBE(
     });
     return await resp.json();
   } catch (error) {
-    console.error("error calling sparsed transfer ->", error);
+    console.log("error calling sparsed transfer ->", error);
     throw error;
   }
 }

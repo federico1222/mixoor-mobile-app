@@ -15,7 +15,7 @@ export function useSaveUser() {
       try {
         await saveNewUser(data);
       } catch (err) {
-        console.error("Error saving user:", err);
+        console.log("Error saving user:", err);
         throw err;
       } finally {
         setIsLoading(false);

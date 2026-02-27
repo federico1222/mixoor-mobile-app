@@ -1,8 +1,9 @@
-import { useMobileWallet } from "@/src/context";
 import { avatar } from "@/src/helpers";
 import { useSaveUser } from "@/src/hooks/userSaveUser";
 import { useUserDetails } from "@/src/hooks/userUser";
 import { useToast } from "@/src/provider";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
+import { useSignOut } from "@/src/hooks/useAuthenticate";
 import { WalletIcon } from "phosphor-react-native";
 import { TextInput } from "react-native";
 import { Button, Image, Text, YStack } from "tamagui";
@@ -19,17 +20,18 @@ export default function SetUserNameModal() {
 
   const { toast } = useToast();
   const { refetch } = useUserDetails();
-  const { address: walletAddress, disconnect, walletInfo } = useMobileWallet();
+  const { account } = useMobileWallet();
+  const { signOut } = useSignOut();
 
   const hasUsername = username.trim().length > 0;
 
   const handleSaveUsername = async () => {
-    if (!hasUsername || !walletAddress) return;
+    if (!hasUsername || !account?.address) return;
 
     try {
       await saveUser({
         username: username,
-        address: walletAddress,
+        address: account?.address,
         profilePic: profilePic,
       });
 
@@ -126,19 +128,17 @@ export default function SetUserNameModal() {
           </Button>
 
           {/* Disconnect Button */}
-          {walletAddress && (
+          {account?.address && (
             <Button
               rounded={"$2"}
               bg="#5D44BE"
-              onPress={() => {
-                disconnect();
-              }}
+              onPress={signOut}
               display="flex"
               items="center"
               gap={7}
             >
-              {walletInfo?.icon ? (
-                <Image src={walletInfo.icon} width={18} height={18} />
+              {account?.icon ? (
+                <Image src={account.icon} width={18} height={18} />
               ) : (
                 <WalletIcon color="#CCCFF9" size={18} />
               )}

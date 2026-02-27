@@ -62,7 +62,7 @@ export function useAddressValidation(address: string) {
           errorMessage: "SNS domain not found",
         };
       } catch (error) {
-        console.error("Error in SNS resolution:", error);
+        console.log("Error in SNS resolution:", error);
         return {
           isValid: false,
           isLoading: false,

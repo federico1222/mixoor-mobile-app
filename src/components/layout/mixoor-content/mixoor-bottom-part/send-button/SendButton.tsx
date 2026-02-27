@@ -1,5 +1,6 @@
 import CustomTooltip from "@/src/components/common/CustomTooltip";
-import { useMobileWallet } from "@/src/context";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
+import { useSignIn } from "@/src/hooks/useAuthenticate";
 import { calculateTransferFee } from "@/src/helpers/calculations";
 import { useTokenSelection, useTransferInput } from "@/src/provider";
 import { InfoIcon, PaperPlaneTiltIcon } from "phosphor-react-native";
@@ -10,7 +11,8 @@ import SendTxModal from "./SendTxModal";
 export default function SendButton() {
   const [openTxModal, setOpenTxModal] = useState(false);
 
-  const { address: selectedWalletAccount, connect } = useMobileWallet();
+  const { account } = useMobileWallet();
+  const { signIn } = useSignIn();
 
   const { selectedToken } = useTokenSelection();
   const { uiAmount, transferType, isMultipleWallets, totalAmount } =
@@ -55,16 +57,14 @@ export default function SendButton() {
           width={"100%"}
           height={"$4"}
           bg={"#5D44BE"}
-          onPress={() =>
-            selectedWalletAccount ? setOpenTxModal(true) : connect()
-          }
+          onPress={() => (account?.address ? setOpenTxModal(true) : signIn())}
         >
           <Text color={"$secondary"}>
-            {!selectedWalletAccount
+            {!account?.address
               ? "Connect Wallet"
               : transferType === "direct"
-              ? "Send Privately"
-              : "Deposit"}
+                ? "Send Privately"
+                : "Deposit"}
           </Text>
 
           <PaperPlaneTiltIcon size={16} color="#CCCFF9" />
@@ -72,7 +72,7 @@ export default function SendButton() {
       </YStack>
 
       {/* Send Transaction Modal */}
-      {selectedWalletAccount && (
+      {account?.address && (
         <SendTxModal open={openTxModal} setOpen={setOpenTxModal} />
       )}
     </>

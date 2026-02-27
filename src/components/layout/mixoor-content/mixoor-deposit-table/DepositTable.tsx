@@ -1,4 +1,3 @@
-import { useMobileWallet } from "@/src/context";
 import { useUserDeposits } from "@/src/hooks/userUser";
 import { MagnifyingGlassIcon } from "phosphor-react-native";
 import React from "react";
@@ -7,6 +6,7 @@ import { Text, XStack, YStack } from "tamagui";
 import ActionCell from "./ActionCell";
 import DepositSidebarTable from "./DepositSidebarTable";
 import StatusCell from "./StatusCell";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 
 const COL_DATE = 110;
 const COL_AMOUNT = 130;
@@ -16,14 +16,14 @@ const TABLE_WIDTH = COL_DATE + COL_AMOUNT + COL_STATUS + COL_ACTION;
 
 export default function DepositTable() {
   const { data } = useUserDeposits();
-  const { address: selectedWalletAccount } = useMobileWallet();
+  const { account } = useMobileWallet();
 
   if (!data || data.length === 0) {
     return (
       <YStack gap="$2" width="100%" items="center" justify="center">
         <MagnifyingGlassIcon color="rgba(250, 250, 250, 0.50)" />
         <Text color="rgba(250, 250, 250, 0.50)" fontSize="$1">
-          {selectedWalletAccount
+          {account?.address
             ? "There are no deposits yet"
             : "Connect your wallet to see the deposited funds"}
         </Text>

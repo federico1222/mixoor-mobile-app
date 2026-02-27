@@ -1,19 +1,19 @@
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { useState } from "react";
-import { useMobileWallet } from "../context";
 import { sparsedTransferFromBE } from "../services/transfer.service";
 import { PreviousPrivateTransferLogs } from "../types/user";
 
 export function useRetryFailedTransfer(onSuccess?: () => void) {
   const [retryingId, setRetryingId] = useState<string | null>(null);
-  const { address: selectedWalletAccount } = useMobileWallet();
+  const { account } = useMobileWallet();
 
   const handleRetry = async (item: PreviousPrivateTransferLogs) => {
-    if (!selectedWalletAccount || !item.errorRecipientAddress) return;
+    if (!account || !item.errorRecipientAddress) return;
 
     setRetryingId(item.depositId);
     try {
       const response = await sparsedTransferFromBE({
-        userAddress: selectedWalletAccount,
+        userAddress: account.address,
         depositId: Number(item.depositId),
         recipientAddress: item.errorRecipientAddress,
       });
@@ -21,10 +21,10 @@ export function useRetryFailedTransfer(onSuccess?: () => void) {
       if (response.success) {
         onSuccess?.();
       } else {
-        console.error("Retry transfer failed:", response);
+        console.log("Retry transfer failed:", response);
       }
     } catch (error) {
-      console.error("Retry transfer error:", error);
+      console.log("Retry transfer error:", error);
     } finally {
       setRetryingId(null);
     }

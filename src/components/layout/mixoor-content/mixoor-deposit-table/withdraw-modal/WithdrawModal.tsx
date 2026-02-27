@@ -1,9 +1,9 @@
 import CustomDialog from "@/src/components/common/CustomDialog";
-import { useMobileWallet } from "@/src/context";
 import { useAddressValidation } from "@/src/hooks/useAddressValidation";
 import { useUserDeposits } from "@/src/hooks/userUser";
 import { sparsedTransferFromBE } from "@/src/services/transfer.service";
 import { UserDeposits } from "@/src/types/user";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { PaperPlaneTiltIcon } from "phosphor-react-native";
 import { Dispatch, SetStateAction, useCallback, useState } from "react";
 import { Button, Text, YStack } from "tamagui";
@@ -26,7 +26,7 @@ export default function WithdrawModal({
   const [withdrawSuccess, setWithdrawSuccess] = useState<boolean>(false);
   const [withdrawError, setWithdrawError] = useState<boolean>(false);
 
-  const { address: selectedWalletAccount } = useMobileWallet();
+  const { account } = useMobileWallet();
 
   const { validationState } = useAddressValidation(recipientAddress);
   const { refetch } = useUserDeposits();
@@ -39,13 +39,13 @@ export default function WithdrawModal({
   }, [setRecipientAddress, setWithdrawSuccess, setWithdrawError, refetch]);
 
   const handleWithdraw = async () => {
-    if (!recipientAddress || !selectedWalletAccount) return;
+    if (!recipientAddress || !account?.address) return;
 
     try {
       setIsLoading(true);
 
       await sparsedTransferFromBE({
-        userAddress: selectedWalletAccount,
+        userAddress: account?.address,
         depositId: depositDetails.id,
         recipientAddress:
           validationState?.resolvedSNSdAddress || recipientAddress,
@@ -54,7 +54,7 @@ export default function WithdrawModal({
       setWithdrawSuccess(true);
       setWithdrawError(false);
     } catch (error) {
-      console.error("Withdraw error:", error);
+      console.log("Withdraw error:", error);
       setWithdrawError(true);
       setWithdrawSuccess(false);
     } finally {

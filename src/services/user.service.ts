@@ -1,4 +1,5 @@
 import { MIXOOR_BACKEND_API_ENDPOINT } from "../config";
+import { getSessionCookieHeader } from "../helpers";
 import { CreateUserPayload } from "../types/user";
 
 export const BASE_URL = `${MIXOOR_BACKEND_API_ENDPOINT}/users`;
@@ -45,7 +46,7 @@ export async function fetchUserDetails(address: string) {
 
     return await resp.json();
   } catch (error) {
-    console.log("error fetching user details");
+    console.log("error fetching user details", error);
     throw error;
   }
 }
@@ -58,10 +59,12 @@ export async function privateUserTransfers(
 ) {
   try {
     const url = `${BASE_URL}/address/${userAddress}/transfers`;
+    const cookieHeader = await getSessionCookieHeader();
     const resp = await fetch(
       `${url}?limit=${limit}&offset=${offset}&sortOrder=${sortOrder}`,
       {
         credentials: "include",
+        headers: cookieHeader,
       }
     );
 
@@ -77,16 +80,34 @@ export async function fetchUserDeposits(
   status: "all" | "unspent" = "unspent"
 ) {
   try {
+    const cookieHeader = await getSessionCookieHeader();
     const resp = await fetch(
       `${BASE_URL}/address/${userAddress}/deposits?status=${status}`,
       {
         credentials: "include",
+        headers: cookieHeader,
       }
     );
 
     return resp.json();
   } catch (error) {
     console.log("error fetching user deposits");
+    throw error;
+  }
+}
+
+// me endpoint that only returns when user
+// is authenticated
+export async function fetchUserDetailAuthenticated() {
+  try {
+    const cookieHeader = await getSessionCookieHeader();
+    const resp = await fetch(`${BASE_URL}/me`, {
+      headers: cookieHeader,
+    });
+
+    return resp.json();
+  } catch (error) {
+    console.log("error fetching logged in details");
     throw error;
   }
 }

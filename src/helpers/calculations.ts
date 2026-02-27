@@ -1,4 +1,9 @@
+import { AssetType } from "./misc";
 import { Lamports } from "@solana/kit";
+import {
+  SYSTEM_ACCOUNT_CREATION_FEE_LAMPORTS,
+  TOKEN_CREATION_FEE_LAMPORTS,
+} from "../constants";
 
 /**
  * Calculates the fee for a transfer based on the sending amount
@@ -9,7 +14,7 @@ import { Lamports } from "@solana/kit";
  */
 export function calculateTransferFee(
   amount?: number | string,
-  feeBps: number = 15
+  feeBps: number = 15,
 ): string | null {
   if (amount === undefined || amount === null || amount === "") {
     return null;
@@ -37,7 +42,7 @@ export function calculateTransferFee(
 export function scaleToUIAmount(
   tokenAmount: number | string | Lamports | bigint | undefined,
   decimals: number,
-  formatted = true
+  formatted = true,
 ) {
   if (tokenAmount === undefined || tokenAmount === null || tokenAmount === "") {
     return formatted ? "0" : 0;
@@ -57,4 +62,44 @@ export function scaleToUIAmount(
   return new Intl.NumberFormat(undefined, {
     maximumFractionDigits: 2,
   }).format(scaled);
+}
+
+/**
+ * Scales UI amount to token amount.
+ *
+ * @param uiAmount - ui amount to scale to token amount
+ * @param decimals - decimals to apply in scaling
+ *
+ * @returns scaled amount in UI
+ */
+export function scaleToTokenAmount(uiAmount: string, decimals: number): bigint {
+  if (!uiAmount) throw new Error("missing contribution amount");
+
+  const [whole = "0", fraction = ""] = uiAmount.split(".");
+  const paddedFraction = fraction.padEnd(decimals, "0").slice(0, decimals);
+
+  return BigInt(whole + paddedFraction);
+}
+
+/**
+ * Calculates tx cost and ata creation for spl asset types
+ *
+ * @param assetType - Type of asset being transferred
+ * @param recipientsLength - Number of recipients
+ * @returns Total transaction cost in lamports
+ */
+export function calculateTransactionFeeLamports(
+  assetType: AssetType,
+  recipientsLength = 1,
+): bigint {
+  const TX_FEE_PER_RECIPIENT = 6_000n;
+  const recipients = BigInt(recipientsLength);
+
+  const txFees = TX_FEE_PER_RECIPIENT * recipients;
+  const accountCreationFee =
+    assetType === AssetType.SplToken
+      ? TOKEN_CREATION_FEE_LAMPORTS
+      : SYSTEM_ACCOUNT_CREATION_FEE_LAMPORTS;
+
+  return accountCreationFee * recipients + txFees;
 }
