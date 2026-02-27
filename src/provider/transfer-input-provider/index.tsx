@@ -93,7 +93,7 @@ export const TransferInputProvider = ({
       setDisplayAmount,
       setTransferInput,
       transferInput,
-    ]
+    ],
   );
 
   return (
@@ -107,7 +107,7 @@ export const useTransferInput = () => {
   const context = useContext(TransferInputContext);
   if (!context) {
     throw new Error(
-      "useTransferInput must be used within a TransferInputProvider"
+      "useTransferInput must be used within a TransferInputProvider",
     );
   }
   return context;

@@ -1,14 +1,14 @@
 import { isAddress } from "@solana/kit";
 import { useMemo } from "react";
-import { useMobileWallet } from "../context";
 import { scaleToUIAmount } from "../helpers/calculations";
 import { useTokenSelection, useTransferInput } from "../provider";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 
 export function useTransferButtonValidations(
   success?: boolean,
-  error?: boolean
+  error?: boolean,
 ) {
-  const { address: selectedWalletAccount } = useMobileWallet();
+  const { account } = useMobileWallet();
 
   const {
     address: recipientAddress,
@@ -27,7 +27,7 @@ export function useTransferButtonValidations(
     if (!selectedToken) return 0;
 
     return Number(
-      scaleToUIAmount(selectedToken.balance, selectedToken.decimals ?? 0)
+      scaleToUIAmount(selectedToken.balance, selectedToken.decimals ?? 0),
     );
   }, [selectedToken]);
 
@@ -41,7 +41,7 @@ export function useTransferButtonValidations(
       return (
         transferInput?.reduce(
           (sum, input) => sum + Number(input.uiAmount || 0),
-          0
+          0,
         ) ?? 0
       );
     }
@@ -66,7 +66,7 @@ export function useTransferButtonValidations(
     if (!transferInput?.length) return false;
 
     return transferInput.every(
-      (input) => isAddress(input.address) && Number(input.uiAmount) > 0
+      (input) => isAddress(input.address) && Number(input.uiAmount) > 0,
     );
   }, [transferInput]);
 
@@ -74,7 +74,7 @@ export function useTransferButtonValidations(
    * Button disabled
    * ------------------------ */
   const isButtonDisabled = useMemo(() => {
-    if (!selectedWalletAccount || !selectedToken) return true;
+    if (!account || !selectedToken) return true;
     if (hasInsufficientBalance) return true;
 
     if (transferType === "delayed") {
@@ -87,7 +87,7 @@ export function useTransferButtonValidations(
 
     return !isSingleAddressValid || isAmountZero;
   }, [
-    selectedWalletAccount,
+    account,
     selectedToken,
     hasInsufficientBalance,
     transferType,
@@ -110,7 +110,7 @@ export function useTransferButtonValidations(
     if (success)
       return transferType === "delayed" ? "Deposit another" : "Send another";
 
-    if (!selectedWalletAccount) return "Connect wallet";
+    if (!account) return "Connect wallet";
     if (!selectedToken) return "Select a token";
     if (hasInsufficientBalance) return "Insufficient Balance";
 
@@ -133,7 +133,7 @@ export function useTransferButtonValidations(
     error,
     success,
     transferType,
-    selectedWalletAccount,
+    account,
     selectedToken,
     hasInsufficientBalance,
     isMultipleWallets,

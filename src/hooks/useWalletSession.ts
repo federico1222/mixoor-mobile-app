@@ -1,6 +1,5 @@
-import { useMobileWallet } from "@/src/context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQueryClient } from "@tanstack/react-query";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { useEffect, useRef } from "react";
 import { logout } from "../services/auth.service";
 
@@ -9,17 +8,18 @@ import { logout } from "../services/auth.service";
  * - Clears queries and auth when wallet disconnects
  */
 export function useWalletSession() {
-  const { isConnected } = useMobileWallet();
   const queryClient = useQueryClient();
+  const { account } = useMobileWallet();
 
-  const prevConnectedRef = useRef<boolean>(false);
+  const prevAddressRef = useRef<string | undefined>(undefined);
   const isFirstMount = useRef(true);
 
   useEffect(() => {
-    // Skip on first mount
+    const currentAddress = account?.address.toString();
+
     if (isFirstMount.current) {
       isFirstMount.current = false;
-      prevConnectedRef.current = isConnected;
+      prevAddressRef.current = currentAddress;
       return;
     }
 
@@ -31,21 +31,16 @@ export function useWalletSession() {
     };
 
     // Wallet disconnected
-    if (prevConnectedRef.current && !isConnected) {
+    if (prevAddressRef.current && !currentAddress) {
       console.log("Wallet disconnected, logging out...");
 
-      // Clear auth token from AsyncStorage
-      AsyncStorage.removeItem("mwa_auth_token").catch((err) =>
-        console.error("Error clearing auth token:", err)
-      );
-
       logout()
-        .catch((err) => console.error("Error logging out:", err))
+        .catch((err) => console.log("Error logging out:", err))
         .finally(() => {
           invalidateAuthQueries();
         });
     }
 
-    prevConnectedRef.current = isConnected;
-  }, [isConnected, queryClient]);
+    prevAddressRef.current = currentAddress;
+  }, [account, queryClient]);
 }

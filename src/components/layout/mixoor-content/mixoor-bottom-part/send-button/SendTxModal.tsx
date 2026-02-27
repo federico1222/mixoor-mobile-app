@@ -1,11 +1,16 @@
 import CustomDialog from "@/src/components/common/CustomDialog";
-import { useMobileWallet } from "@/src/context";
 import { formatAddress } from "@/src/helpers";
 import { calculateTransferFee } from "@/src/helpers/calculations";
+import { useAddressValidation } from "@/src/hooks/useAddressValidation";
+import { useRiskCheck } from "@/src/hooks/useRiskCheck";
 import { useTransferButtonValidations } from "@/src/hooks/useTransferButtonValidations";
+import { useTransferValidation } from "@/src/hooks/useTransferValidation";
+import { useTransferWithToasts } from "@/src/hooks/useTransferWithToasts";
 import { useTokenSelection, useTransferInput } from "@/src/provider";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { PaperPlaneTiltIcon } from "phosphor-react-native";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useCallback, useEffect } from "react";
+import { ActivityIndicator } from "react-native";
 import { Button, Text, XStack, YStack } from "tamagui";
 import DialogTransferView from "./DialogTransferView";
 import MultiRecipientCollapsible from "./MultiRecipientCollapsible";
@@ -25,14 +30,75 @@ export default function SendTxModal({
     isMultipleWallets,
     address: recipientAddress,
   } = useTransferInput();
+  const { account } = useMobileWallet();
+
+  const { handleTransfer, error, success, isLoading } = useTransferWithToasts();
+  const { validationState } = useAddressValidation(recipientAddress);
+  const { checkAddressRisk, isChecking } = useRiskCheck();
 
   const { selectedToken } = useTokenSelection();
-  const { confirmationPopUpText, totalUiAmount } =
-    useTransferButtonValidations();
-  const { address: selectedWalletAccount } = useMobileWallet();
 
-  const error = false;
-  const success = false;
+  const {
+    confirmationPopUpText,
+    totalUiAmount,
+    transferBtnText,
+    isButtonDisabled,
+  } = useTransferButtonValidations();
+
+  const {
+    isBalanceExceeded,
+    showBalanceErrorToast,
+    isBelowMinimum,
+    showMinimumDepositToast,
+  } = useTransferValidation();
+
+  useEffect(() => {
+    if (success) setOpen(false);
+  }, [success, setOpen]);
+
+  const handleTransferPrivately = useCallback(async () => {
+    if (!account || !selectedToken) return;
+
+    if (isBalanceExceeded) {
+      showBalanceErrorToast();
+      return;
+    }
+
+    if (isBelowMinimum) {
+      showMinimumDepositToast();
+      return;
+    }
+
+    // ranger api risk check
+    const isAllowed = await checkAddressRisk(account.address);
+    if (!isAllowed) return;
+
+    await handleTransfer({
+      uiAmount,
+      recipientAddress:
+        validationState?.resolvedSNSdAddress || recipientAddress,
+      selectedToken,
+      userAddress: account.address,
+      isMultipleWallets,
+      transferInput,
+      transferType,
+    });
+  }, [
+    account,
+    checkAddressRisk,
+    handleTransfer,
+    isBalanceExceeded,
+    isBelowMinimum,
+    isMultipleWallets,
+    recipientAddress,
+    selectedToken,
+    showBalanceErrorToast,
+    showMinimumDepositToast,
+    transferInput,
+    transferType,
+    uiAmount,
+    validationState?.resolvedSNSdAddress,
+  ]);
 
   return (
     <CustomDialog id="tx-modal" open={open} setOpen={setOpen} trigger={null}>
@@ -120,11 +186,31 @@ export default function SendTxModal({
           </Text>
         </XStack>
 
-        {selectedWalletAccount && (
-          <Button height={"$4"} bg={error ? "#321812" : "#5D44BE"}>
-            <Text color={error ? "#FFC1B2" : "$secondary"}>Send</Text>
+        {account?.address && (
+          <Button
+            onPress={handleTransferPrivately}
+            disabled={isLoading || isChecking || isButtonDisabled}
+            height={"$4"}
+            bg={error ? "#321812" : "#5D44BE"}
+            opacity={isLoading || isChecking ? 0.7 : 1}
+          >
+            {isLoading || isChecking ? (
+              <ActivityIndicator
+                size="small"
+                color={error ? "#FFC1B2" : "#CCCFF9"}
+              />
+            ) : (
+              <>
+                <Text color={error ? "#FFC1B2" : "$secondary"}>
+                  {transferBtnText}
+                </Text>
 
-            <PaperPlaneTiltIcon size={16} color="#CCCFF9" />
+                <PaperPlaneTiltIcon
+                  size={16}
+                  color={error ? "#FFC1B2" : "#CCCFF9"}
+                />
+              </>
+            )}
           </Button>
         )}
       </YStack>

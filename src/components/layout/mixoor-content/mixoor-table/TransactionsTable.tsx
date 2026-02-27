@@ -1,4 +1,3 @@
-import { useMobileWallet } from "@/src/context";
 import { formatAddress } from "@/src/helpers";
 import { useRetryFailedTransfer } from "@/src/hooks/useRetryFailedTransfer";
 import { useUserPreviousTransfers } from "@/src/hooks/userUser";
@@ -14,6 +13,7 @@ import { useState } from "react";
 import { Image, Pressable, ScrollView } from "react-native";
 import { Text, XStack, YStack } from "tamagui";
 import TransactionSidebar from "./TransactionSidebar";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 
 const COL_DATE = 110;
 const COL_RECIPIENT = 180;
@@ -25,7 +25,7 @@ export default function TransactionsTable() {
   const { data: transfersResponse, refetch } = useUserPreviousTransfers(5, 0);
   const previousTransfers = transfersResponse?.data;
 
-  const { address: selectedWalletAccount } = useMobileWallet();
+  const { account } = useMobileWallet();
   const { retryingId, handleRetry, isFailedTransfer } =
     useRetryFailedTransfer(refetch);
 
@@ -40,7 +40,7 @@ export default function TransactionsTable() {
       <YStack gap="$2" width="100%" items="center" justify="center">
         <MagnifyingGlassIcon color="rgba(250, 250, 250, 0.50)" />
         <Text color="rgba(250, 250, 250, 0.50)" fontSize="$1">
-          {selectedWalletAccount
+          {account
             ? "There are no transactions yet"
             : "Connect your wallet to see the transaction history"}
         </Text>
@@ -169,14 +169,14 @@ export default function TransactionsTable() {
                         item?.recipientAddress || "",
                         3,
                         0,
-                        3
+                        3,
                       )?.toUpperCase()}
                     </Text>
                     <Pressable
                       onPress={() =>
                         handleCopy(
                           item?.recipientAddress ?? "",
-                          item.txSignature
+                          item.txSignature,
                         )
                       }
                       hitSlop={8}

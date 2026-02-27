@@ -32,7 +32,7 @@ export async function resolveSnsDomain(domain: string): Promise<string | null> {
 
     return null;
   } catch (error) {
-    console.error("Error resolving SNS domain:", error);
+    console.log("Error resolving SNS domain:", error);
 
     // try {
     //   console.log("Trying alternative API...");

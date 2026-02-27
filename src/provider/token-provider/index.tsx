@@ -89,7 +89,7 @@ export const TokenProvider = ({ children }: { children: React.ReactNode }) => {
       setExternalToken,
       isLoading,
     }),
-    [selectedToken, externalToken, isLoading]
+    [selectedToken, externalToken, isLoading],
   );
 
   return (

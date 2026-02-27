@@ -39,11 +39,13 @@ export default function ActionCell({ item }: { item: UserDeposits }) {
         </Text>
       </Pressable>
 
-      <WithdrawModal
-        open={isModalOpen}
-        setOpen={setIsModalOpen}
-        depositDetails={item}
-      />
+      {isModalOpen && (
+        <WithdrawModal
+          open={isModalOpen}
+          setOpen={setIsModalOpen}
+          depositDetails={item}
+        />
+      )}
     </XStack>
   );
 }
