@@ -7,7 +7,6 @@ import {
   MerkleTreeLocal as MerkleTree,
   generateCommitmentLocal as generateCommitment,
 } from "../helpers/merkle";
-import { AssetType } from "../helpers/misc";
 import {
   address,
   appendTransactionMessageInstructions,
@@ -34,6 +33,7 @@ import {
 } from "../helpers/calculations";
 import {
   determineAssetType,
+  AssetType,
   transferLamportsInstruction,
 } from "../helpers/misc";
 import { RELAYER_ADDRESS } from "../constants";
