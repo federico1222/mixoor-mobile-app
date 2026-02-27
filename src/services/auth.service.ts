@@ -5,7 +5,7 @@ import { StartWalletAuthResp } from "../types";
 export const BASE_URL = `${MIXOOR_BACKEND_API_ENDPOINT}/auth`;
 
 export async function startWalletAuth(
-  address: string,
+  address: string
 ): Promise<StartWalletAuthResp> {
   try {
     const resp = await fetch(`${BASE_URL}/start/${address}`, {
@@ -14,7 +14,7 @@ export async function startWalletAuth(
 
     return resp.json();
   } catch (error) {
-    console.error("error initiating auth ->", error);
+    console.log("error initiating auth ->", error);
     throw error;
   }
 }
@@ -37,7 +37,7 @@ export async function finishWalletAuth(data?: {
     const body = await resp.json();
     return { ...body, sessionCookie };
   } catch (error) {
-    console.error("error completing auth ->", error);
+    console.log("error completing auth ->", error);
     throw error;
   }
 }
@@ -56,7 +56,7 @@ export async function logout() {
 
     return resp.json();
   } catch (error) {
-    console.error("error signing out ->", error);
+    console.log("error signing out ->", error);
     throw error;
   }
 }

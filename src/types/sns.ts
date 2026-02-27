@@ -12,11 +12,11 @@ export async function resolveSnsDomain(domain: string): Promise<string | null> {
         headers: {
           Accept: "application/json",
         },
-      },
+      }
     );
 
     if (!response.ok) {
-      console.error("Response not OK, status:", response.status);
+      console.log("Response not OK, status:", response.status);
       return null;
     }
 
@@ -32,7 +32,7 @@ export async function resolveSnsDomain(domain: string): Promise<string | null> {
 
     return null;
   } catch (error) {
-    console.error("Error resolving SNS domain:", error);
+    console.log("Error resolving SNS domain:", error);
 
     // try {
     //   console.log("Trying alternative API...");
@@ -61,6 +61,6 @@ export function isSnsDomainFormat(input: string): boolean {
   const trimmed = input.trim();
 
   return /^[a-zA-Z0-9][a-zA-Z0-9-]*\.(sol|skr|backpack|pussy|bonk|abc|oorc|mbs|pog|nala|toly|gog|monke|portal)$/i.test(
-    trimmed,
+    trimmed
   );
 }

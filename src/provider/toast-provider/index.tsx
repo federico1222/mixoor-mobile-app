@@ -1,54 +1,26 @@
+import { TOAST_CONFIG, ToastContextValue, ToastData } from "@/src/types/toast";
 import {
   CheckCircleIcon,
   InfoIcon,
-  XIcon,
   XCircleIcon,
+  XIcon,
 } from "phosphor-react-native";
 import React, { createContext, ReactNode, useContext, useState } from "react";
+import { Linking } from "react-native";
 import {
   Button,
   ToastProvider as TamaguiToastProvider,
+  Text,
   Toast,
   ToastViewport,
+  useWindowDimensions,
   XStack,
 } from "tamagui";
 
-const TOAST_CONFIG = {
-  error: {
-    bg: "#1A0A0F",
-    border: "#6B1A35",
-    accent: "#F87171",
-    textColor: "#FCA5A5",
-    icon: XCircleIcon,
-  },
-  success: {
-    bg: "#071811",
-    border: "#1A5C35",
-    accent: "#34D399",
-    textColor: "#6EE7B7",
-    icon: CheckCircleIcon,
-  },
-  info: {
-    bg: "#080F1A",
-    border: "#1A3A6B",
-    accent: "#60A5FA",
-    textColor: "#93C5FD",
-    icon: InfoIcon,
-  },
-};
-
-type ToastType = "success" | "error" | "info";
-
-type ToastData = {
-  id: string;
-  type: ToastType;
-  title?: string;
-  description?: string;
-  duration?: number;
-};
-
-type ToastContextValue = {
-  toast: (options: Omit<ToastData, "id">) => void;
+const TOAST_ICONS = {
+  error: XCircleIcon,
+  success: CheckCircleIcon,
+  info: InfoIcon,
 };
 
 const ToastContext = createContext<ToastContextValue | null>(null);
@@ -64,9 +36,39 @@ export const useToast = () => {
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastData[]>([]);
 
+  const { width } = useWindowDimensions();
+  const toastWidth = width - 32;
+
   const toast = (options: Omit<ToastData, "id">) => {
     const id = `${Date.now()}-${Math.random()}`;
-    setToasts([{ duration: 10000, ...options, id }]);
+    setToasts((prev) => [...prev, { duration: 10000, ...options, id }]);
+  };
+
+  const showTransactionToast = ({
+    title,
+    txSignature,
+    cluster,
+    duration = 100000,
+  }: {
+    title: string;
+    txSignature: string;
+    cluster?: string;
+    duration?: number;
+  }) => {
+    const clusterParam = cluster
+      ? `?cluster=${cluster.replace("solana:", "")}`
+      : "";
+    const solscanUrl = `https://solscan.io/tx/${txSignature}${clusterParam}`;
+
+    toast({
+      type: "success",
+      title,
+      action: {
+        label: "Solscan",
+        onPress: () => Linking.openURL(solscanUrl),
+      },
+      duration: duration,
+    });
   };
 
   const remove = (id: string) => {
@@ -74,17 +76,19 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <ToastContext.Provider value={{ toast }}>
+    <ToastContext.Provider value={{ toast, showTransactionToast }}>
       <TamaguiToastProvider swipeDirection="down">
         {children}
 
         {toasts.map((t) => {
           const config = TOAST_CONFIG[t.type];
-          const Icon = config.icon;
+          const Icon = TOAST_ICONS[t.type];
 
           return (
             <Toast
               key={t.id}
+              width={toastWidth}
+              alignSelf="center"
               duration={t.duration}
               onOpenChange={(open) => {
                 if (!open) remove(t.id);
@@ -98,19 +102,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               backgroundColor={config.bg}
               borderWidth={1}
               borderColor={config.border}
-              borderLeftWidth={3}
-              borderLeftColor={config.accent}
               borderRadius="$4"
               paddingVertical="$3"
               paddingHorizontal="$4"
               paddingRight="$8"
             >
-              <XStack
-                // alignItems="center"
-                gap="$2"
-                // marginBottom={t.description ? "$1" : 0}
-                verticalAlign="middle"
-              >
+              <XStack gap="$2" verticalAlign="middle">
                 <Icon size={18} color={config.accent} weight="fill" />
                 <Toast.Title
                   style={{ color: config.textColor }}
@@ -131,6 +128,22 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 </Toast.Description>
               )}
 
+              {t.action && (
+                <Toast.Description fontSize={13}>
+                  {t.type !== "error" && "View on "}
+                  <Text
+                    style={{
+                      color: config.accent,
+                      textDecorationLine: "underline",
+                    }}
+                    fontSize={13}
+                    onPress={t.action.onPress}
+                  >
+                    {t.action.label}
+                  </Text>
+                </Toast.Description>
+              )}
+
               <Toast.Close asChild position="absolute" right="$2" top="$2">
                 <Button size="$1" chromeless circular>
                   <XIcon color={config.textColor} size={12} />
@@ -141,13 +154,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         })}
 
         <ToastViewport
+          width={"100%"}
           position="absolute"
-          top="$12"
-          left="$4"
-          right="$4"
+          top="$9"
           zIndex={9999}
-          alignItems="center"
-          gap="$2"
         />
       </TamaguiToastProvider>
     </ToastContext.Provider>

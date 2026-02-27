@@ -1,14 +1,16 @@
+import { isSolanaError } from "@solana/kit";
+import * as Clipboard from "expo-clipboard";
 import { useCallback, useState } from "react";
+import { formatAddress } from "../helpers";
+import { getSolanaClusterId } from "../helpers/misc";
+import type { UserToken } from "../provider";
+import { useToast } from "../provider/toast-provider";
+import { depositFromBE } from "../services/deposit.service";
+import { directTransferFromBE } from "../services/transfer.service";
+import type { MultiRecipient, TransferInput, TransferType } from "../types";
+import { useSignIn } from "./useAuthenticate";
 import { useDeposit, type DepositResult } from "./useProgramIxs";
 import { useUserPreviousTransfers } from "./userUser";
-import { useToast } from "../provider/toast-provider";
-import { useSignIn } from "./useAuthenticate";
-import { formatAddress } from "../helpers";
-import { directTransferFromBE } from "../services/transfer.service";
-import { depositFromBE } from "../services/deposit.service";
-import { isSolanaError } from "@solana/kit";
-import type { UserToken } from "../provider";
-import type { MultiRecipient, TransferInput, TransferType } from "../types";
 
 type TransferParams = {
   uiAmount: string;
@@ -43,7 +45,7 @@ function clipAddress(addr: string) {
 export const useTransferWithToasts = () => {
   const { deposit, isLoading } = useDeposit();
   const { refetch } = useUserPreviousTransfers();
-  const { toast } = useToast();
+  const { toast, showTransactionToast } = useToast();
   const { signIn } = useSignIn();
 
   const [error, setError] = useState(false);
@@ -98,7 +100,9 @@ export const useTransferWithToasts = () => {
 
       toast({
         type: "info",
-        title: "Retrying transfer",
+        title: `Retrying ${
+          transferType === "delayed" ? "deposit" : "transfer"
+        }`,
         description: "Processing retry transaction...",
       });
 
@@ -123,9 +127,18 @@ export const useTransferWithToasts = () => {
           setSuccess(false);
           toast({
             type: "error",
-            title: "Transfer Failed",
+            title: `${
+              transferType === "delayed" ? "Deposit" : "Transfer"
+            } Failed`,
             description:
               response.message ?? "An error occurred during the transfer",
+            action: {
+              label: "Copy error",
+              onPress: () =>
+                Clipboard.setStringAsync(
+                  response.message ?? "An error occurred during the transfer"
+                ),
+            },
           });
           return;
         }
@@ -134,25 +147,40 @@ export const useTransferWithToasts = () => {
         setError(false);
         toast({
           type: "success",
-          title: "Transfer Completed",
-          description: `Sent ${displayAmount} ${selectedToken.symbol} to ${clipAddress(recipient)}`,
+          title: `${
+            transferType === "delayed" ? "Deposit" : "Transfer"
+          } Completed`,
+          description: `Sent ${displayAmount} ${
+            selectedToken.symbol
+          } to ${clipAddress(recipient)}`,
         });
       } catch (err) {
-        console.error("Error retrying transfer:", err);
+        console.log("Error retrying transfer:", err);
         setError(true);
         setSuccess(false);
         toast({
           type: "error",
-          title: "Transfer Failed",
+          title: `${
+            transferType === "delayed" ? "Deposit" : "Transfer"
+          } Failed`,
           description:
             err instanceof Error ? err.message : "Unknown error occurred",
+          action: {
+            label: "Copy error",
+            onPress: () =>
+              Clipboard.setStringAsync(
+                err instanceof Error
+                  ? `${err.message}\n${err.stack ?? ""}`
+                  : String(err)
+              ),
+          },
         });
       } finally {
         setIsRetryLoading(false);
         refetch();
       }
     },
-    [lastTransferData, refetch, checkAuthentication, toast],
+    [lastTransferData, refetch, checkAuthentication, toast]
   );
 
   const handleTransfer = useCallback(
@@ -170,38 +198,54 @@ export const useTransferWithToasts = () => {
 
       toast({
         type: "info",
-        title: "Processing transfer",
+        title: `Processing ${
+          transferType === "delayed" ? "deposit" : "transfer"
+        }`,
         description: "Sending transaction and waiting for confirmation…",
       });
 
       const handleTransferError = (
         description: string,
         retryData?: RetryTransferParams,
+        errorToCopy?: unknown
       ) => {
         setError(true);
         setSuccess(false);
         if (retryData) setLastTransferData(retryData);
+
+        const errorText =
+          errorToCopy instanceof Error
+            ? `${errorToCopy.message}\n${errorToCopy.stack ?? ""}`
+            : String(errorToCopy ?? description);
+
         toast({
           type: "error",
-          title: "Transfer Failed",
-          description: `${description}\nShare console error with devs`,
+          title: `${
+            transferType === "delayed" ? "Deposit" : "Transfer"
+          } Failed`,
+          description,
+          duration: 100000,
+          action: {
+            label: "Copy error",
+            onPress: () => Clipboard.setStringAsync(errorText),
+          },
         });
       };
 
       try {
         const depositResult: DepositResult = await deposit();
 
-        toast({
-          type: "info",
+        showTransactionToast({
           title: "Transaction Sent",
-          description: `Tx: ${clipAddress(depositResult.txSignature)}`,
+          txSignature: depositResult.txSignature as string,
+          cluster: getSolanaClusterId(),
         });
 
         if (depositResult.isMultipleWallets) {
           const { txSignature, recipients } = depositResult;
           const totalAmount = recipients.reduce(
             (sum, r) => sum + BigInt(r.amount),
-            0n,
+            0n
           );
 
           const retryData: RetryTransferParams = {
@@ -238,6 +282,7 @@ export const useTransferWithToasts = () => {
             handleTransferError(
               response.message ?? "An error occurred during the transfer",
               retryData,
+              response.message
             );
             return;
           }
@@ -246,7 +291,9 @@ export const useTransferWithToasts = () => {
           setError(false);
           toast({
             type: "success",
-            title: "Transfer Completed",
+            title: `${
+              transferType === "delayed" ? "Deposit" : "Transfer"
+            } Completed`,
             description: `Sent ${uiAmount} ${selectedToken.symbol} to ${recipients.length} wallets`,
           });
         } else {
@@ -296,8 +343,8 @@ export const useTransferWithToasts = () => {
 
           if (!response?.success) {
             handleTransferError(
-              response.message ?? "An error occurred during the transfer",
-              retryData,
+              response.message ?? `An error occurred during the transfer`,
+              retryData
             );
             return;
           }
@@ -305,27 +352,33 @@ export const useTransferWithToasts = () => {
           setSuccess(true);
           setError(false);
 
-          const isDelayed = transferType === "delayed";
           toast({
             type: "success",
-            title: `${isDelayed ? "Deposit" : "Transfer"} Completed`,
-            description: isDelayed
-              ? "Deposit successful. You can send your deposit any time"
-              : `Sent ${uiAmount} ${selectedToken.symbol} to ${clipAddress(recipientAddress)}`,
+            title: `${
+              transferType === "delayed" ? "Deposit" : "Transfer"
+            } Completed`,
+            description:
+              transferType === "delayed"
+                ? "Deposit successful. You can send your deposit any time"
+                : `Sent ${uiAmount} ${selectedToken.symbol} to ${clipAddress(
+                    recipientAddress
+                  )}`,
           });
         }
       } catch (err) {
-        console.error("⚠️ Please share the error below with the dev team ⚠️");
-        console.error("Error Type:", isSolanaError(err) ? "Solana" : "General");
-        console.error(err);
+        console.log("⚠️ Please share the error below with the dev team ⚠️");
+        console.log("Error Type:", isSolanaError(err) ? "Solana" : "General");
+        console.log(err);
         handleTransferError(
           err instanceof Error ? err.message : "Unknown error occurred",
+          undefined,
+          err
         );
       } finally {
         refetch();
       }
     },
-    [checkAuthentication, deposit, toast, refetch],
+    [checkAuthentication, deposit, toast, refetch]
   );
 
   return {

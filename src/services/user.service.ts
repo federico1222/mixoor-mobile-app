@@ -1,12 +1,12 @@
 import { MIXOOR_BACKEND_API_ENDPOINT } from "../config";
-import { CreateUserPayload } from "../types/user";
 import { getSessionCookieHeader } from "../helpers";
+import { CreateUserPayload } from "../types/user";
 
 export const BASE_URL = `${MIXOOR_BACKEND_API_ENDPOINT}/users`;
 
 export async function sendFeedback(
   feedback: string,
-  wallet?: string,
+  wallet?: string
 ): Promise<void> {
   const res = await fetch(`${BASE_URL}/feedback`, {
     method: "POST",
@@ -46,7 +46,7 @@ export async function fetchUserDetails(address: string) {
 
     return await resp.json();
   } catch (error) {
-    console.error("error fetching user details", error);
+    console.log("error fetching user details", error);
     throw error;
   }
 }
@@ -55,7 +55,7 @@ export async function privateUserTransfers(
   userAddress: string,
   limit: number = 10,
   offset: number = 0,
-  sortOrder: "asc" | "desc" = "desc",
+  sortOrder: "asc" | "desc" = "desc"
 ) {
   try {
     const url = `${BASE_URL}/address/${userAddress}/transfers`;
@@ -65,19 +65,19 @@ export async function privateUserTransfers(
       {
         credentials: "include",
         headers: cookieHeader,
-      },
+      }
     );
 
     return resp.json();
   } catch (error) {
-    console.error("error fetching user deposits");
+    console.log("error fetching user deposits");
     throw error;
   }
 }
 
 export async function fetchUserDeposits(
   userAddress: string,
-  status: "all" | "unspent" = "unspent",
+  status: "all" | "unspent" = "unspent"
 ) {
   try {
     const cookieHeader = await getSessionCookieHeader();
@@ -86,12 +86,12 @@ export async function fetchUserDeposits(
       {
         credentials: "include",
         headers: cookieHeader,
-      },
+      }
     );
 
     return resp.json();
   } catch (error) {
-    console.error("error fetching user deposits");
+    console.log("error fetching user deposits");
     throw error;
   }
 }

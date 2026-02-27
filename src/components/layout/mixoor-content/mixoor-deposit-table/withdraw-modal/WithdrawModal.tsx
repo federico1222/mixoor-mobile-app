@@ -3,12 +3,12 @@ import { useAddressValidation } from "@/src/hooks/useAddressValidation";
 import { useUserDeposits } from "@/src/hooks/userUser";
 import { sparsedTransferFromBE } from "@/src/services/transfer.service";
 import { UserDeposits } from "@/src/types/user";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { PaperPlaneTiltIcon } from "phosphor-react-native";
 import { Dispatch, SetStateAction, useCallback, useState } from "react";
 import { Button, Text, YStack } from "tamagui";
 import DialogWithdrawView from "./DialogWithdrawView";
 import WithdrawModalBody from "./WithdrawModalBody";
-import { useMobileWallet } from "@wallet-ui/react-native-kit";
 
 interface WithdrawModalProps {
   open: boolean;
@@ -54,7 +54,7 @@ export default function WithdrawModal({
       setWithdrawSuccess(true);
       setWithdrawError(false);
     } catch (error) {
-      console.error("Withdraw error:", error);
+      console.log("Withdraw error:", error);
       setWithdrawError(true);
       setWithdrawSuccess(false);
     } finally {
@@ -112,8 +112,8 @@ export default function WithdrawModal({
             {withdrawSuccess
               ? "Close"
               : withdrawError
-                ? "Retry"
-                : "Transfer Privately"}
+              ? "Retry"
+              : "Transfer Privately"}
           </Text>
           {!withdrawSuccess && <PaperPlaneTiltIcon size={16} color="#CCCFF9" />}
         </Button>

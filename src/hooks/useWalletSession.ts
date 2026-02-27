@@ -1,5 +1,5 @@
-import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { useQueryClient } from "@tanstack/react-query";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { useEffect, useRef } from "react";
 import { logout } from "../services/auth.service";
 
@@ -32,10 +32,10 @@ export function useWalletSession() {
 
     // Wallet disconnected
     if (prevAddressRef.current && !currentAddress) {
-      console.error("Wallet disconnected, logging out...");
+      console.log("Wallet disconnected, logging out...");
 
       logout()
-        .catch((err) => console.error("Error logging out:", err))
+        .catch((err) => console.log("Error logging out:", err))
         .finally(() => {
           invalidateAuthQueries();
         });
