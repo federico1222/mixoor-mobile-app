@@ -8,7 +8,7 @@ export const WALLET_APPS = [
     name: "Solflare",
     playStoreUrl:
       "https://play.google.com/store/apps/details?id=com.solflare.mobile",
-    icon: require("../assets/wallets/solflare.png"),
+    icon: require("../assets/wallets/solflare.jpg"),
   },
   {
     name: "Backpack",

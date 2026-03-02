@@ -44,12 +44,15 @@ config.resolver.blockList = /node_modules\/web-worker\/cjs\/node\.js$/;
 // and redirect to our shims that patch globalThis.Blob before loading.
 const defaultResolver = config.resolver.resolveRequest;
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-  if (moduleName === "ffjavascript") {
+  const isCalledFromShim = context.originModulePath && context.originModulePath.includes('/shims/');
+  
+  if (!isCalledFromShim && moduleName === "ffjavascript") {
     return { filePath: path.resolve(__dirname, "shims/ffjavascript.js"), type: "sourceFile" };
   }
-  if (moduleName === "snarkjs") {
+  if (!isCalledFromShim && moduleName === "snarkjs") {
     return { filePath: path.resolve(__dirname, "shims/snarkjs.js"), type: "sourceFile" };
   }
+  
   if (defaultResolver) {
     return defaultResolver(context, moduleName, platform);
   }

@@ -25,7 +25,7 @@ export const DEFAULT_INPUT = [
 
 export const WALLET_ICONS: Record<string, any> = {
   "phantom-wallet": require("../assets/wallets/phantom.png"),
-  "solflare-wallet": require("../assets/wallets/solflare.png"),
+  "solflare-wallet": require("../assets/wallets/solflare.jpg"),
   "metamask-wallet": require("../assets/wallets/metamask.png"),
 };
 
