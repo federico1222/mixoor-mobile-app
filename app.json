@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Mixoor.fun",
+    "name": "Mixoor",
     "slug": "mixoor-mobile-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -34,7 +34,7 @@
       "favicon": "./assets/mixoor-chrome-192x192.png",
       "themeColor": "#5D44BE",
       "backgroundColor": "#5D44BE",
-      "name": "Mixoor.fun",
+      "name": "Mixoor",
       "shortName": "Mixoor",
       "display": "standalone",
       "orientation": "portrait",
