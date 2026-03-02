@@ -43,6 +43,9 @@ export function isNoWalletsError(error: any): boolean {
   return (
     errorName.includes("solanamobilewalletadaptererror") ||
     errorMessage.includes("found no installed wallet") ||
-    errorMessage.includes("no installed wallet that supports")
+    errorMessage.includes("no installed wallet that supports") ||
+    errorMessage.includes(
+      "Sign in error: [SolanaMobileWalletAdapterError: Found no installed wallet that supports the mobile wallet protocol.]"
+    )
   );
 }

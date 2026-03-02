@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getBase58Codec, getUtf8Codec } from "@solana/kit";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMobileWallet } from "@wallet-ui/react-native-kit";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { SESSION_COOKIE_KEY } from "../constants";
 import {
   finishWalletAuth,
@@ -13,6 +13,8 @@ import {
 export function useSignIn() {
   const [isLoading, setIsLoading] = useState(false);
   const { connect, signMessage, account } = useMobileWallet();
+
+  const lastErrorRef = useRef<any>(null);
 
   const signIn = useCallback(async (): Promise<boolean> => {
     setIsLoading(true);
@@ -47,13 +49,14 @@ export function useSignIn() {
       return true;
     } catch (error) {
       console.log("Sign in error:", error);
+      lastErrorRef.current = error;
       return false;
     } finally {
       setIsLoading(false);
     }
   }, [account, connect, signMessage]);
 
-  return { signIn, isLoading };
+  return { signIn, isLoading, getLastError: () => lastErrorRef.current };
 }
 
 export function useSignOut() {
