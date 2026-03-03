@@ -3,6 +3,20 @@ const path = require("path");
 
 const config = getDefaultConfig(__dirname);
 
+// Resolve the real browser ESM paths at config-load time using Node.js's own resolver.
+// Both packages expose their main entry via "exports", but NOT "package.json".
+// We resolve the main entry (build/main.cjs) then swap in browser.esm.js from the
+// same build/ directory. This follows pnpm symlinks correctly in both local dev
+// and EAS builds without hardcoding any versioned pnpm path.
+const realFfjavascriptPath = path.join(
+  path.dirname(require.resolve("ffjavascript")),
+  "browser.esm.js"
+);
+const realSnarkjsPath = path.join(
+  path.dirname(require.resolve("snarkjs")),
+  "browser.esm.js"
+);
+
 config.resolver.extraNodeModules = {
   ...config.resolver.extraNodeModules,
   constants: path.resolve(__dirname, "shims/constants.js"),
@@ -52,7 +66,16 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (!isCalledFromShim && moduleName === "snarkjs") {
     return { filePath: path.resolve(__dirname, "shims/snarkjs.js"), type: "sourceFile" };
   }
-  
+
+  // Sentinel names used by shims to reach the real packages without triggering
+  // the intercept above or creating a circular dependency.
+  if (moduleName === "__real_ffjavascript__") {
+    return { filePath: realFfjavascriptPath, type: "sourceFile" };
+  }
+  if (moduleName === "__real_snarkjs__") {
+    return { filePath: realSnarkjsPath, type: "sourceFile" };
+  }
+
   if (defaultResolver) {
     return defaultResolver(context, moduleName, platform);
   }

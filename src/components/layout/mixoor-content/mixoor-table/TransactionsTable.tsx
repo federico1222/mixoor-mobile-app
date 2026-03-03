@@ -1,6 +1,7 @@
 import { formatAddress } from "@/src/helpers";
 import { useRetryFailedTransfer } from "@/src/hooks/useRetryFailedTransfer";
 import { useUserPreviousTransfers } from "@/src/hooks/userUser";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import {
   ArrowClockwiseIcon,
   CheckIcon,
@@ -13,12 +14,17 @@ import { useState } from "react";
 import { Image, Pressable, ScrollView } from "react-native";
 import { Text, XStack, YStack } from "tamagui";
 import TransactionSidebar from "./TransactionSidebar";
-import { useMobileWallet } from "@wallet-ui/react-native-kit";
 
-const COL_DATE = 110;
+const COL_DATE = 130;
 const COL_RECIPIENT = 180;
-const COL_AMOUNT = 110;
+const COL_AMOUNT = 130;
 const TABLE_WIDTH = COL_DATE + COL_RECIPIENT + COL_AMOUNT;
+
+function formatAmount(uiAmount: string | number): string {
+  const num = typeof uiAmount === "number" ? uiAmount : parseFloat(uiAmount);
+  if (isNaN(num)) return String(uiAmount);
+  return parseFloat(num.toFixed(6)).toString();
+}
 
 export default function TransactionsTable() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -88,7 +94,7 @@ export default function TransactionsTable() {
 
           return (
             <XStack
-              key={item.txSignature}
+              key={`${item.txSignature}-${index}`}
               bg={rowBg}
               py="$3"
               items="center"
@@ -131,10 +137,13 @@ export default function TransactionsTable() {
                     <Text color="#FCA5A5" fontSize={12}>
                       Failed
                     </Text>
+
                     <Pressable
+                      disabled={retryingId === item.depositId}
                       onPress={() => handleRetry(item)}
                       style={({ pressed }) => ({
-                        opacity: pressed ? 0.7 : 1,
+                        opacity:
+                          pressed || retryingId === item.depositId ? 0.7 : 1,
                         borderWidth: 1,
                         borderColor: "#EF4444",
                         borderRadius: 6,
@@ -149,10 +158,18 @@ export default function TransactionsTable() {
                             : "transparent",
                       })}
                     >
-                      <ArrowClockwiseIcon size={12} color="#FCA5A5" />
-                      <Text color="#FCA5A5" fontSize={12}>
-                        Retry
-                      </Text>
+                      {retryingId === item.depositId ? (
+                        <Text color="#FCA5A5" fontSize={12}>
+                          Loading...
+                        </Text>
+                      ) : (
+                        <>
+                          <ArrowClockwiseIcon size={12} color="#FCA5A5" />
+                          <Text color="#FCA5A5" fontSize={12}>
+                            Retry
+                          </Text>
+                        </>
+                      )}
                     </Pressable>
                   </>
                 ) : item.multiRecipients && item.multiRecipients.length > 0 ? (
@@ -169,14 +186,14 @@ export default function TransactionsTable() {
                         item?.recipientAddress || "",
                         3,
                         0,
-                        3,
+                        3
                       )?.toUpperCase()}
                     </Text>
                     <Pressable
                       onPress={() =>
                         handleCopy(
                           item?.recipientAddress ?? "",
-                          item.txSignature,
+                          item.txSignature
                         )
                       }
                       hitSlop={8}
@@ -198,8 +215,8 @@ export default function TransactionsTable() {
                 justify="center"
                 gap="$2"
               >
-                <Text color={textColor} fontSize={14}>
-                  {item.uiAmount}
+                <Text color={textColor} fontSize={14} numberOfLines={1}>
+                  {formatAmount(item.uiAmount)}
                 </Text>
                 {item?.tokenMetadata?.image && (
                   <Image

@@ -13,12 +13,19 @@ import {
 } from "phosphor-react-native";
 import { useState } from "react";
 import { Image, Pressable, ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Sheet, Text, XStack, YStack } from "tamagui";
 
-const COL_DATE = 110;
+const COL_DATE = 130;
 const COL_RECIPIENT = 180;
-const COL_AMOUNT = 110;
+const COL_AMOUNT = 130;
 const TABLE_WIDTH = COL_DATE + COL_RECIPIENT + COL_AMOUNT;
+
+function formatAmount(uiAmount: string | number): string {
+  const num = typeof uiAmount === "number" ? uiAmount : parseFloat(uiAmount);
+  if (isNaN(num)) return String(uiAmount);
+  return parseFloat(num.toFixed(6)).toString();
+}
 
 export default function TransactionSidebar({
   copiedId,
@@ -30,6 +37,7 @@ export default function TransactionSidebar({
   const [open, setOpen] = useState(false);
   const [offset, setOffset] = useState(0);
   const limit = 10;
+  const insets = useSafeAreaInsets();
 
   const { data: transfersResponse, refetch } = useUserPreviousTransfers(
     limit,
@@ -79,7 +87,13 @@ export default function TransactionSidebar({
           exitStyle={{ opacity: 0 }}
           backdropFilter="blur(10px)"
         />
-        <Sheet.Frame bg={"$background"} pt={80} pb={30} px={20}>
+        <Sheet.Frame
+          bg={"$background"}
+          pt={insets.top + 20}
+          pb={Math.max(insets.bottom + 16, 30)}
+          px={20}
+          flex={1}
+        >
           <YStack gap="$3" pb={30}>
             <Text fontSize={24} fontWeight="700" color="#FAFAFA">
               Transaction History
@@ -92,7 +106,7 @@ export default function TransactionSidebar({
 
           {/* Table */}
           <ScrollView style={{ flex: 1 }}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={true}>
               <YStack width={TABLE_WIDTH}>
                 {/* Header */}
                 <XStack
@@ -131,7 +145,7 @@ export default function TransactionSidebar({
 
                   return (
                     <XStack
-                      key={item.txSignature}
+                      key={`${item.txSignature}-${index}`}
                       bg={rowBg}
                       py="$3"
                       items="center"
@@ -245,8 +259,8 @@ export default function TransactionSidebar({
                         justify="center"
                         gap="$2"
                       >
-                        <Text color={textColor} fontSize={14}>
-                          {item.uiAmount}
+                        <Text color={textColor} fontSize={14} numberOfLines={1}>
+                          {formatAmount(item.uiAmount)}
                         </Text>
                         {item?.tokenMetadata?.image && (
                           <Image
@@ -301,7 +315,7 @@ export default function TransactionSidebar({
           </ScrollView>
 
           <Button
-            mt={40}
+            mt={16}
             height={44}
             width={"100%"}
             outline={"none"}

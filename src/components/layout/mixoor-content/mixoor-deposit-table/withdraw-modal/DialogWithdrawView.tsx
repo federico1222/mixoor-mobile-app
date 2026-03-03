@@ -12,7 +12,7 @@ export default function DialogWithdrawView({
     <>
       {/* Estado normal - Confirmar retiro */}
       {!withdrawSuccess && !withdrawError && (
-        <YStack gap="$10" mt="$6">
+        <YStack gap="$6">
           <Text fontSize={24} fontWeight="700" color="#FAFAFA">
             Confirm Withdrawal
           </Text>

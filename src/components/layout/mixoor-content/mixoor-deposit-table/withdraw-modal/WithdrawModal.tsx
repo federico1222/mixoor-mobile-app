@@ -1,11 +1,13 @@
 import CustomDialog from "@/src/components/common/CustomDialog";
 import { useAddressValidation } from "@/src/hooks/useAddressValidation";
 import { useUserDeposits } from "@/src/hooks/userUser";
+import { useToast } from "@/src/provider/toast-provider";
 import { sparsedTransferFromBE } from "@/src/services/transfer.service";
 import { UserDeposits } from "@/src/types/user";
 import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { PaperPlaneTiltIcon } from "phosphor-react-native";
 import { Dispatch, SetStateAction, useCallback, useState } from "react";
+import { ActivityIndicator } from "react-native";
 import { Button, Text, YStack } from "tamagui";
 import DialogWithdrawView from "./DialogWithdrawView";
 import WithdrawModalBody from "./WithdrawModalBody";
@@ -27,6 +29,7 @@ export default function WithdrawModal({
   const [withdrawError, setWithdrawError] = useState<boolean>(false);
 
   const { account } = useMobileWallet();
+  const { toast } = useToast();
 
   const { validationState } = useAddressValidation(recipientAddress);
   const { refetch } = useUserDeposits();
@@ -53,10 +56,21 @@ export default function WithdrawModal({
 
       setWithdrawSuccess(true);
       setWithdrawError(false);
+      toast({
+        type: "success",
+        title: "Withdrawal Successful",
+        description: `Sent ${depositDetails.uiAmount} ${depositDetails?.tokenMetadata?.symbol ?? ""} privately.`,
+      });
     } catch (error) {
       console.log("Withdraw error:", error);
       setWithdrawError(true);
       setWithdrawSuccess(false);
+      toast({
+        type: "error",
+        title: "Withdrawal Failed",
+        description:
+          error instanceof Error ? error.message : "An error occurred during the withdrawal.",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -65,9 +79,17 @@ export default function WithdrawModal({
   const handleButtonClick = () => {
     if (withdrawSuccess) {
       resetWithdrawState();
-    } else {
-      handleWithdraw();
+      return;
     }
+    if (!recipientAddress) {
+      toast({
+        type: "error",
+        title: "Recipient required",
+        description: "Please enter a recipient address before withdrawing.",
+      });
+      return;
+    }
+    handleWithdraw();
   };
 
   const isButtonDisabled = !recipientAddress || isLoading || withdrawError;
@@ -106,16 +128,24 @@ export default function WithdrawModal({
           height={44}
           bg={withdrawError ? "#321812" : "#5D44BE"}
           disabled={isButtonDisabled}
-          onClick={handleButtonClick}
+          onPress={handleButtonClick}
         >
-          <Text color={withdrawError ? "#FFC1B2" : "#CCCFF9"}>
-            {withdrawSuccess
-              ? "Close"
-              : withdrawError
-              ? "Retry"
-              : "Transfer Privately"}
-          </Text>
-          {!withdrawSuccess && <PaperPlaneTiltIcon size={16} color="#CCCFF9" />}
+          {isLoading ? (
+            <ActivityIndicator size="small" color={"#CCCFF9"} />
+          ) : (
+            <>
+              <Text color={withdrawError ? "#FFC1B2" : "#CCCFF9"}>
+                {withdrawSuccess
+                  ? "Close"
+                  : withdrawError
+                  ? "Retry"
+                  : "Transfer Privately"}
+              </Text>
+              {!withdrawSuccess && (
+                <PaperPlaneTiltIcon size={16} color="#CCCFF9" />
+              )}
+            </>
+          )}
         </Button>
       </YStack>
     </CustomDialog>

@@ -1,45 +1,68 @@
-import CustomSheet from "@/src/components/common/CustomSheet";
 import { InfoIcon } from "phosphor-react-native";
 import React, { useState } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import YoutubePlayer from "react-native-youtube-iframe";
-import { Button, ScrollView, Text, View, XStack, YStack } from "tamagui";
+import { Button, Sheet, Text, View, XStack, YStack } from "tamagui";
 
 export default function MixoorHowToUse() {
   const [open, setOpen] = useState(false);
+  const insets = useSafeAreaInsets();
+
   return (
     <View items={"center"} justify={"center"}>
       <XStack items={"center"} onPress={() => setOpen(true)}>
         <InfoIcon color={"#FFFFFF"} size={20} />
       </XStack>
 
-      <CustomSheet
-        id="feedback"
+      <Sheet
+        modal
         open={open}
         onOpenChange={setOpen}
-        disableDrag={true}
+        dismissOnSnapToBottom={false}
+        dismissOnOverlayPress={true}
+        zIndex={100_000}
+        snapPoints={[92]}
+        disableDrag={false}
       >
-        <XStack width={"100%"} self={"center"} justify={"center"}>
-          <XStack
-            width={48}
-            height={48}
-            rounded={"$2"}
-            items={"center"}
-            justify={"center"}
-            border="1px solid"
-            bg={"rgba(64, 53, 122, 0.05)"}
-            borderColor={"rgba(39, 39, 42, 1)"}
-          >
-            <InfoIcon color={"#CCCFF9"} size={20} />
+        <Sheet.Overlay
+          backgroundColor="rgba(0, 0, 0, 0.76)"
+          enterStyle={{ opacity: 0 }}
+          exitStyle={{ opacity: 0 }}
+          backdropFilter="blur(10px)"
+        />
+
+        <Sheet.Frame
+          bg={"$background"}
+          borderTopLeftRadius={24}
+          borderTopRightRadius={24}
+          pt={24}
+          pb={Math.max(insets.bottom + 16, 24)}
+          px={20}
+          flex={1}
+        >
+          {/* Fixed header */}
+          <XStack width={"100%"} self={"center"} justify={"center"} mb={"$4"}>
+            <XStack
+              width={48}
+              height={48}
+              rounded={"$2"}
+              items={"center"}
+              justify={"center"}
+              border="1px solid"
+              bg={"rgba(64, 53, 122, 0.05)"}
+              borderColor={"rgba(39, 39, 42, 1)"}
+            >
+              <InfoIcon color={"#CCCFF9"} size={20} />
+            </XStack>
           </XStack>
-        </XStack>
 
-        <Text fontSize={24} color="$color" fontWeight={700} mt={"$6"}>
-          How to use Mixoor?
-        </Text>
+          <Text fontSize={24} color="$color" fontWeight={700} mb={"$4"}>
+            How to use Mixoor?
+          </Text>
 
-        <ScrollView maxH={600} showsVerticalScrollIndicator={true}>
-          <YStack mt={24} px={"$2"}>
-            <YStack gap={"$3"}>
+          {/* Scrollable content */}
+          <Sheet.ScrollView flex={1} showsVerticalScrollIndicator={true}>
+            <YStack px={"$2"} gap={"$3"} pb={"$4"}>
               <Text fontSize={"$3"} fontWeight={400} color={"$text"}>
                 Sending funds privately in Mixoor is as simple as doing 3
                 clicks:
@@ -95,20 +118,21 @@ export default function MixoorHowToUse() {
                 recipient wallet you select.
               </Text>
             </YStack>
-          </YStack>
-        </ScrollView>
+          </Sheet.ScrollView>
 
-        <Button
-          mt={40}
-          height={44}
-          width={"100%"}
-          outline={"none"}
-          onPress={() => setOpen(false)}
-          bg={"rgba(93, 68, 190, 1)"}
-        >
-          <Text fontWeight={500}>Close</Text>
-        </Button>
-      </CustomSheet>
+          {/* Fixed close button — always visible */}
+          <Button
+            mt={12}
+            height={44}
+            width={"100%"}
+            outline={"none"}
+            onPress={() => setOpen(false)}
+            bg={"rgba(93, 68, 190, 1)"}
+          >
+            <Text fontWeight={500}>Close</Text>
+          </Button>
+        </Sheet.Frame>
+      </Sheet>
     </View>
   );
 }
