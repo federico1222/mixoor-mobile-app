@@ -32,7 +32,14 @@ export default function SendTxModal({
   } = useTransferInput();
   const { account } = useMobileWallet();
 
-  const { handleTransfer, error, success, isLoading } = useTransferWithToasts();
+  const {
+    handleTransfer,
+    error,
+    success,
+    isLoading,
+    setError,
+    setSuccess,
+  } = useTransferWithToasts();
   const { validationState } = useAddressValidation(recipientAddress);
   const { checkAddressRisk, isChecking } = useRiskCheck();
 
@@ -43,7 +50,7 @@ export default function SendTxModal({
     totalUiAmount,
     transferBtnText,
     isButtonDisabled,
-  } = useTransferButtonValidations();
+  } = useTransferButtonValidations(success, error);
 
   const {
     isBalanceExceeded,
@@ -52,9 +59,14 @@ export default function SendTxModal({
     showMinimumDepositToast,
   } = useTransferValidation();
 
+  // Reset state every time the modal opens so previous results don't bleed in
   useEffect(() => {
-    if (success) setOpen(false);
-  }, [success, setOpen]);
+    if (open) {
+      setError(false);
+      setSuccess(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const handleTransferPrivately = useCallback(async () => {
     if (!account || !selectedToken) return;
@@ -188,7 +200,11 @@ export default function SendTxModal({
 
         {account?.address && (
           <Button
-            onPress={handleTransferPrivately}
+            onPress={
+              transferBtnText === "Close"
+                ? () => setOpen(false)
+                : handleTransferPrivately
+            }
             disabled={isLoading || isChecking || isButtonDisabled}
             height={"$4"}
             bg={error ? "#321812" : "#5D44BE"}
@@ -205,10 +221,12 @@ export default function SendTxModal({
                   {transferBtnText}
                 </Text>
 
-                <PaperPlaneTiltIcon
-                  size={16}
-                  color={error ? "#FFC1B2" : "#CCCFF9"}
-                />
+                {!success && (
+                  <PaperPlaneTiltIcon
+                    size={16}
+                    color={error ? "#FFC1B2" : "#CCCFF9"}
+                  />
+                )}
               </>
             )}
           </Button>

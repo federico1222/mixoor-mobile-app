@@ -252,6 +252,9 @@ export const useTransferWithToasts = () => {
       try {
         const depositResult: DepositResult = await deposit();
 
+        // Keep loading state continuous — no gap between on-chain and backend phases
+        setIsBELoading(true);
+
         showTransactionToast({
           title: "Transaction Sent",
           txSignature: depositResult.txSignature as string,
@@ -279,8 +282,6 @@ export const useTransferWithToasts = () => {
             transferType,
             multiRecipients: recipients,
           };
-
-          setIsBELoading(true);
           const response = await directTransferFromBE({
             userAddress,
             mint: selectedToken.mintAddress,
@@ -333,7 +334,6 @@ export const useTransferWithToasts = () => {
             transferType,
           };
 
-          setIsBELoading(true);
           const response =
             transferType === "direct"
               ? await directTransferFromBE({
