@@ -104,7 +104,7 @@ export const useDeposit = () => {
         secret,
         nullifier,
         scaledAmount,
-        pool
+        pool,
       );
 
       // Insert new commitment and get new root
@@ -132,7 +132,7 @@ export const useDeposit = () => {
       getSendingSigner,
       selectedToken?.mintAddress,
       selectedToken?.tokenProgram,
-    ]
+    ],
   );
 
   /**
@@ -184,7 +184,7 @@ export const useDeposit = () => {
       });
       const noOfRecipients = isMultipleWallets
         ? transferInput.filter(
-            (ti) => ti.address?.trim() && Number(ti.uiAmount) > 0
+            (ti) => ti.address?.trim() && Number(ti.uiAmount) > 0,
           ).length
         : 1;
       const txFee = calculateTransactionFeeLamports(assetType, noOfRecipients);
@@ -237,22 +237,21 @@ export const useDeposit = () => {
           (tx) => appendTransactionMessageInstructions(instructions, tx),
           (tx) => setTransactionMessageFeePayerSigner(sendingSigner, tx),
           (tx) =>
-            setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx)
+            setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
         );
         const tx = compileTransaction(transactionMessage);
 
-        let [txSigBytes] = await signAndSendTransaction(tx, minContextSlot);
+        let txSigBytes = await signAndSendTransaction(tx, minContextSlot);
 
         txSignature = getBase58Codec().decode(txSigBytes) as Signature;
-        //
         //  ----------- end here
 
         const isConfirmedResp = await confirmTransactionStatusWithRetry(
           client,
-          [txSignature]
+          [txSignature],
         );
         const isConfirmed = isConfirmedResp.every(
-          (s) => s !== null && s.err === null
+          (s) => s !== null && s.err === null,
         );
         if (!isConfirmed) throw new Error("Transaction error or confirm fail");
 
@@ -273,7 +272,7 @@ export const useDeposit = () => {
         // Single recipient deposit
         const scaledAmount = scaleToTokenAmount(
           uiAmount,
-          selectedToken.decimals
+          selectedToken.decimals,
         );
 
         const result = await constructDepositInstruction({
@@ -307,21 +306,21 @@ export const useDeposit = () => {
           (tx) => appendTransactionMessageInstructions(instructions, tx),
           (tx) => setTransactionMessageFeePayerSigner(sendingSigner, tx),
           (tx) =>
-            setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx)
+            setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
         );
         const tx = compileTransaction(transactionMessage);
 
-        let [txSigBytes] = await signAndSendTransaction(tx, minContextSlot);
+        let txSigBytes = await signAndSendTransaction(tx, minContextSlot);
 
         txSignature = getBase58Codec().decode(txSigBytes) as Signature;
         // --------- end here
 
         const isConfirmedResp = await confirmTransactionStatusWithRetry(
           client,
-          [txSignature]
+          [txSignature],
         );
         const isConfirmed = isConfirmedResp.every(
-          (s) => s !== null && s.err === null
+          (s) => s !== null && s.err === null,
         );
         if (!isConfirmed) throw new Error("Transaction error or confirm fail");
 

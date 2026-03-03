@@ -1,1 +1,4 @@
-words = ["mixoor"]
+words = [
+    "mixoor",
+    "pressable",
+]
