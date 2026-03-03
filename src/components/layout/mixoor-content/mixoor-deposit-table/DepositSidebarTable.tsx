@@ -2,6 +2,7 @@ import { useUserDeposits } from "@/src/hooks/userUser";
 import { ArrowUpRightIcon } from "phosphor-react-native";
 import { useState } from "react";
 import { Image, Pressable, ScrollView } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Sheet, Text, XStack, YStack } from "tamagui";
 import ActionCell from "./ActionCell";
 import StatusCell from "./StatusCell";
@@ -15,6 +16,7 @@ const TABLE_WIDTH = COL_DATE + COL_AMOUNT + COL_STATUS + COL_ACTION;
 export default function DepositFoundSidebar() {
   const [open, setOpen] = useState(false);
   const { data } = useUserDeposits();
+  const insets = useSafeAreaInsets();
 
   return (
     <>
@@ -54,9 +56,15 @@ export default function DepositFoundSidebar() {
           exitStyle={{ opacity: 0 }}
           backdropFilter="blur(10px)"
         />
-        <Sheet.Frame bg="#09090B" pt={80} pb={30} px={20}>
+        <Sheet.Frame
+          bg="#09090B"
+          pt={insets.top + 20}
+          pb={Math.max(insets.bottom + 16, 30)}
+          px={20}
+          flex={1}
+        >
           {/* Header */}
-          <YStack gap="$3" pb={30}>
+          <YStack gap="$3" pb={24}>
             <Text fontSize={24} fontWeight="700" color="#FAFAFA">
               Deposited Funds
             </Text>
@@ -69,7 +77,7 @@ export default function DepositFoundSidebar() {
 
           {/* Table */}
           <ScrollView style={{ flex: 1 }}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={true}>
               <YStack width={TABLE_WIDTH}>
                 {/* Header */}
                 <XStack
@@ -173,7 +181,7 @@ export default function DepositFoundSidebar() {
 
           {/* Close Button */}
           <Button
-            mt={40}
+            mt={16}
             height={44}
             width="100%"
             outline="none"

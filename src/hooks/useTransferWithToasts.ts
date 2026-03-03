@@ -1,4 +1,5 @@
 import { isSolanaError } from "@solana/kit";
+import { useQueryClient } from "@tanstack/react-query";
 import * as Clipboard from "expo-clipboard";
 import { useCallback, useState } from "react";
 import { formatAddress } from "../helpers";
@@ -45,8 +46,18 @@ function clipAddress(addr: string) {
 export const useTransferWithToasts = () => {
   const { deposit, isLoading } = useDeposit();
   const { refetch } = useUserPreviousTransfers();
+  const queryClient = useQueryClient();
   const { toast, showTransactionToast } = useToast();
   const { signIn, getLastError } = useSignIn();
+
+  const refetchAll = useCallback(() => {
+    return Promise.all([
+      refetch(),
+      queryClient.invalidateQueries({ queryKey: ["userDeposits"] }),
+      queryClient.invalidateQueries({ queryKey: ["userSolBalance"] }),
+      queryClient.invalidateQueries({ queryKey: ["userTokenBalance"] }),
+    ]);
+  }, [refetch, queryClient]);
 
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -183,10 +194,10 @@ export const useTransferWithToasts = () => {
         });
       } finally {
         setIsRetryLoading(false);
-        refetch();
+        refetchAll();
       }
     },
-    [lastTransferData, refetch, checkAuthentication, toast]
+    [lastTransferData, refetchAll, checkAuthentication, toast]
   );
 
   const handleTransfer = useCallback(
@@ -241,6 +252,9 @@ export const useTransferWithToasts = () => {
       try {
         const depositResult: DepositResult = await deposit();
 
+        // Keep loading state continuous — no gap between on-chain and backend phases
+        setIsBELoading(true);
+
         showTransactionToast({
           title: "Transaction Sent",
           txSignature: depositResult.txSignature as string,
@@ -268,8 +282,6 @@ export const useTransferWithToasts = () => {
             transferType,
             multiRecipients: recipients,
           };
-
-          setIsBELoading(true);
           const response = await directTransferFromBE({
             userAddress,
             mint: selectedToken.mintAddress,
@@ -322,7 +334,6 @@ export const useTransferWithToasts = () => {
             transferType,
           };
 
-          setIsBELoading(true);
           const response =
             transferType === "direct"
               ? await directTransferFromBE({
@@ -385,10 +396,10 @@ export const useTransferWithToasts = () => {
           err
         );
       } finally {
-        refetch();
+        refetchAll();
       }
     },
-    [checkAuthentication, deposit, toast, refetch]
+    [checkAuthentication, deposit, toast, refetchAll]
   );
 
   return {

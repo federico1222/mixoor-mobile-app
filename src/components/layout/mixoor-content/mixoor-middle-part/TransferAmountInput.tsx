@@ -26,8 +26,9 @@ export default function TransferAmountInput() {
   const { selectedToken } = useTokenSelection();
 
   const handleChange = (value: string) => {
-    setDisplayAmount(value);
-    setUiAmount(value);
+    const normalized = value.replace(",", ".");
+    setDisplayAmount(normalized);
+    setUiAmount(normalized);
   };
 
   const handleMax = () => {

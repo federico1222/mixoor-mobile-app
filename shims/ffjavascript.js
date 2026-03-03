@@ -9,6 +9,9 @@ const _Blob = globalThis.Blob;
 globalThis.Blob = undefined;
 globalThis.Worker = globalThis.Worker ?? null;
 
-module.exports = require("../node_modules/ffjavascript/build/browser.esm.js");
+// "__real_ffjavascript__" is a sentinel resolved by metro.config.js to the
+// actual package path at config-load time, avoiding circular imports and
+// hardcoded pnpm internal paths that differ between local dev and EAS builds.
+module.exports = require("__real_ffjavascript__");
 
 globalThis.Blob = _Blob;
