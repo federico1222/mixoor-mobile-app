@@ -45,3 +45,8 @@ app-example
 .env
 
 eas.json
+
+# Claude Code
+Claude.md       
+docs/systems    
+TASK.md

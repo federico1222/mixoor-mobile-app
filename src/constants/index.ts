@@ -4,10 +4,10 @@ import { getSolanaClusterId } from "../helpers/misc";
 import { UserToken } from "../provider";
 
 export const WRAPPED_SOL_MINT_TOKEN_PROGRAM = address(
-  "So11111111111111111111111111111111111111112",
+  "So11111111111111111111111111111111111111112"
 );
 export const WRAPPED_SOL_MINT_TOKEN_2022_PROGRAM = address(
-  "9pan9bMn5HatX4EJdBwg9VgCa7Uz5HL8N1m5D3NdXejP",
+  "9pan9bMn5HatX4EJdBwg9VgCa7Uz5HL8N1m5D3NdXejP"
 );
 
 // USDC mint address
@@ -45,15 +45,15 @@ export const USDC_TOKEN_CONSTANT: Omit<UserToken, "balance"> = {
 };
 
 export const ADMIN_ADDRESS = address(
-  "AdUKMLxLi18EfLqLFQvDaizXmvGoDFaNQfQU681vbTje",
+  "AdUKMLxLi18EfLqLFQvDaizXmvGoDFaNQfQU681vbTje"
 );
 
 export const RELAYER_ADDRESS = address(
-  "re1R63DiMLtDyHMAS1ohszqfFTHcF9Q3uEXSYdHzHWU",
+  "re1R63DiMLtDyHMAS1ohszqfFTHcF9Q3uEXSYdHzHWU"
 );
 
 export const MIXOOR_MINT = address(
-  "CdqUsAfihtKntBsXPrFaovYyr642zKmZmLxzwWQfsoar",
+  "CdqUsAfihtKntBsXPrFaovYyr642zKmZmLxzwWQfsoar"
 );
 
 export const LAMPORTS_PER_SOL = 1_000_000_000n;
@@ -75,5 +75,5 @@ export const SESSION_COOKIE_KEY = "mixoor_session";
 export const APP_IDENTITY = {
   name: "Mixoor",
   uri: "https://mixoor.fun",
-  icon: "favicon.ico",
+  icon: "/mixoor-chrome-192x192.png",
 } as const;

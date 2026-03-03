@@ -8,7 +8,7 @@ import { useToast } from "../provider/toast-provider";
 import { depositFromBE } from "../services/deposit.service";
 import { directTransferFromBE } from "../services/transfer.service";
 import type { MultiRecipient, TransferInput, TransferType } from "../types";
-import { useSignIn } from "./useAuthenticate";
+import { isUserRejection, useSignIn } from "./useAuthenticate";
 import { useDeposit, type DepositResult } from "./useProgramIxs";
 import { useUserPreviousTransfers } from "./userUser";
 
@@ -46,7 +46,7 @@ export const useTransferWithToasts = () => {
   const { deposit, isLoading } = useDeposit();
   const { refetch } = useUserPreviousTransfers();
   const { toast, showTransactionToast } = useToast();
-  const { signIn } = useSignIn();
+  const { signIn, getLastError } = useSignIn();
 
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -58,17 +58,22 @@ export const useTransferWithToasts = () => {
   const checkAuthentication = useCallback(async (): Promise<boolean> => {
     const isAuthenticated = await signIn();
     if (!isAuthenticated) {
-      toast({
-        type: "error",
-        title: "Authentication Failed",
-        description:
-          "Please sign the authentication message to continue. If the prompt didn't appear, try reconnecting your wallet.",
-        duration: 8000,
-      });
+      const error = getLastError();
+      if (!isUserRejection(error)) {
+        const isTimeout = error?.message?.includes("timed out");
+        toast({
+          type: "error",
+          title: isTimeout ? "Wallet prompt not detected" : "Authentication Failed",
+          description: isTimeout
+            ? "Open your wallet and approve the sign request, then try again."
+            : "Please sign the authentication message to continue. If the prompt didn't appear, try reconnecting your wallet.",
+          duration: 8000,
+        });
+      }
       return false;
     }
     return true;
-  }, [signIn, toast]);
+  }, [signIn, getLastError, toast]);
 
   const retryTransfer = useCallback(
     async (retryParams?: RetryTransferParams) => {

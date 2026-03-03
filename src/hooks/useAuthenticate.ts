@@ -10,8 +10,28 @@ import {
   startWalletAuth,
 } from "../services/auth.service";
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+    ),
+  ]);
+}
+
+export function isUserRejection(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  const msg = error.message.toLowerCase();
+  return (
+    msg.includes("user rejected") ||
+    msg.includes("user cancelled") ||
+    msg.includes("user canceled")
+  );
+}
+
 export function useSignIn() {
   const [isLoading, setIsLoading] = useState(false);
+  const [signingState, setSigningState] = useState<"idle" | "awaiting_wallet">("idle");
   const { connect, signMessage, account } = useMobileWallet();
 
   const lastErrorRef = useRef<any>(null);
@@ -29,7 +49,12 @@ export function useSignIn() {
       if (!data?.message) return false;
 
       const messageBytes = getUtf8Codec().encode(data.message);
-      const signatureBytes = await signMessage(Uint8Array.from(messageBytes));
+      setSigningState("awaiting_wallet");
+      const signatureBytes = await withTimeout(
+        signMessage(Uint8Array.from(messageBytes)),
+        30_000,
+        "signMessage"
+      );
       const signature = getBase58Codec().decode(signatureBytes);
 
       const finishResp = await finishWalletAuth({
@@ -52,11 +77,12 @@ export function useSignIn() {
       lastErrorRef.current = error;
       return false;
     } finally {
+      setSigningState("idle");
       setIsLoading(false);
     }
   }, [account, connect, signMessage]);
 
-  return { signIn, isLoading, getLastError: () => lastErrorRef.current };
+  return { signIn, isLoading, signingState, getLastError: () => lastErrorRef.current };
 }
 
 export function useSignOut() {
