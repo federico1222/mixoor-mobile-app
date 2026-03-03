@@ -1,5 +1,5 @@
 import { formatAddress, getWalletIcon } from "@/src/helpers";
-import { useSignIn, useSignOut } from "@/src/hooks/useAuthenticate";
+import { isUserRejection, useSignIn, useSignOut } from "@/src/hooks/useAuthenticate";
 import { useUserDetails } from "@/src/hooks/userUser";
 import { useToast } from "@/src/provider";
 import { isNoWalletsError } from "@/src/utils/detectWallets";
@@ -15,7 +15,7 @@ export default function RightPart() {
   const { toast } = useToast();
   const { data: userDetails } = useUserDetails();
   const { account } = useMobileWallet();
-  const { signIn, getLastError } = useSignIn();
+  const { signIn, signingState, getLastError } = useSignIn();
   const { signOut } = useSignOut();
 
   const [isConnecting, setIsConnecting] = useState(false);
@@ -31,12 +31,15 @@ export default function RightPart() {
 
       if (isNoWalletsError(error)) {
         setShowInstallModal(true);
-      } else {
+      } else if (!isUserRejection(error)) {
+        const isTimeout = error?.message?.includes("timed out");
         toast({
           type: "error",
-          title: "Connection Failed",
-          description:
-            error?.message || "Unable to connect to wallet. Please try again.",
+          title: isTimeout ? "Wallet prompt not detected" : "Connection Failed",
+          description: isTimeout
+            ? "Open your wallet and approve the sign request, then try again."
+            : error?.message || "Unable to connect to wallet. Please try again.",
+          ...(isTimeout && { action: { label: "Retry", onPress: handleConnect } }),
         });
       }
     }
@@ -48,7 +51,13 @@ export default function RightPart() {
     return (
       <>
         <ConnectWalletButton
-          title={isConnecting ? "Connecting..." : "Connect Wallet"}
+          title={
+            signingState === "awaiting_wallet"
+              ? "Check your wallet..."
+              : isConnecting
+              ? "Connecting..."
+              : "Connect Wallet"
+          }
           width={"auto"}
           maxH={40}
           rounded={"$2"}
