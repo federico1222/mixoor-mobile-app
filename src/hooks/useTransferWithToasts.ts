@@ -50,6 +50,7 @@ export const useTransferWithToasts = () => {
 
   const [error, setError] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [isBELoading, setIsBELoading] = useState(false);
   const [isRetryLoading, setIsRetryLoading] = useState(false);
   const [lastTransferData, setLastTransferData] =
     useState<RetryTransferParams | null>(null);
@@ -268,6 +269,7 @@ export const useTransferWithToasts = () => {
             multiRecipients: recipients,
           };
 
+          setIsBELoading(true);
           const response = await directTransferFromBE({
             userAddress,
             mint: selectedToken.mintAddress,
@@ -282,6 +284,7 @@ export const useTransferWithToasts = () => {
             multiRecipients: recipients,
             transferType,
           });
+          setIsBELoading(false);
 
           if (!response?.success) {
             handleTransferError(
@@ -319,6 +322,7 @@ export const useTransferWithToasts = () => {
             transferType,
           };
 
+          setIsBELoading(true);
           const response =
             transferType === "direct"
               ? await directTransferFromBE({
@@ -345,6 +349,7 @@ export const useTransferWithToasts = () => {
                   decimals: selectedToken.decimals,
                   tokenProgram: selectedToken.tokenProgram,
                 });
+          setIsBELoading(false);
 
           if (!response?.success) {
             handleTransferError(
@@ -391,7 +396,7 @@ export const useTransferWithToasts = () => {
     retryTransfer,
     lastTransferData,
     isRetryLoading,
-    isLoading,
+    isLoading: isLoading || isBELoading,
     success,
     error,
     setError,
