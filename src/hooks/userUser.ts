@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMobileWallet } from "@wallet-ui/react-native-kit";
+import { useAuth } from "../provider/auth-provider";
 import {
   fetchUserDeposits,
   fetchUserDetails,
@@ -22,6 +23,7 @@ export function useSendFeedback() {
 
 export const useUserDetails = () => {
   const { account } = useMobileWallet();
+  const { isAuthenticated } = useAuth();
 
   return useQuery<UserDetails | null>({
     queryKey: ["userDetails", account?.address],
@@ -42,7 +44,7 @@ export const useUserDetails = () => {
       }
     },
     retry: 2,
-    enabled: !!account?.address,
+    enabled: !!account?.address && isAuthenticated,
   });
 };
 

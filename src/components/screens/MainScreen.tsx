@@ -1,5 +1,6 @@
 import { useWalletSession } from "@/src/hooks/useWalletSession";
 import { useUserDetails } from "@/src/hooks/userUser";
+import { useAuth } from "@/src/provider/auth-provider";
 import { YStack } from "tamagui";
 import MainHeading from "../common/MainHeading";
 import SetUserNameModal from "../common/SetUserNameModal";
@@ -11,9 +12,8 @@ import { useMobileWallet } from "@wallet-ui/react-native-kit";
 
 export default function MainScreen() {
   const { account } = useMobileWallet();
+  const { isAuthenticated } = useAuth();
   const { data: userDetails, isFetched } = useUserDetails();
-
-  console.log("connected account", account); // ! DEBUG STATEMENT
 
   /*
    * Handle wallet session lifecycle (logout on account change, auto-auth)
@@ -23,10 +23,11 @@ export default function MainScreen() {
   /**
    * Show username setup when:
    * - wallet connected
+   * - auth completed (session cookie exists)
    * - user data fetched
    * - no user exists yet for this wallet
    */
-  if (account && isFetched && !userDetails) {
+  if (account && isAuthenticated && isFetched && !userDetails) {
     return <SetUserNameModal />;
   }
 
