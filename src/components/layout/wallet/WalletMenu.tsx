@@ -46,12 +46,12 @@ export function WalletMenu({
       >
         <YStack width={"100%"}>
           <XStack p={"$2"} onPress={copyAddress} justify={"space-between"}>
-            <Text fontFamily={"$mono"} color={copied ? "#4ADE80" : "$text"} fontSize={"$1"}>
-              {copied ? "Copied!" : formatAddress(address, 3, 0, 3) || ""}
+            <Text fontFamily={"$mono"} color="$text" fontSize={"$1"}>
+              {formatAddress(address, 3, 0, 3) || ""}
             </Text>
 
             {copied ? (
-              <Check size={14} color={"#4ADE80"} />
+              <Check size={14} color={"#FFFFFF"} />
             ) : (
               <Copy size={14} color={"#FFFFFF"} />
             )}
