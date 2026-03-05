@@ -1,8 +1,8 @@
-import { formatAddress, getWalletIcon } from "@/src/helpers";
+import { formatAddress } from "@/src/helpers";
 import { isUserRejection, useSignIn, useSignOut } from "@/src/hooks/useAuthenticate";
 import { useUserDetails } from "@/src/hooks/userUser";
 import { useToast } from "@/src/provider";
-import { isNoWalletsError } from "@/src/utils/detectWallets";
+import { WALLET_APPS, isNoWalletsError } from "@/src/utils/detectWallets";
 import {
   clearTargetWallet,
   DetectedWallet,
@@ -12,7 +12,8 @@ import {
 import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { WalletIcon } from "phosphor-react-native";
 import { useState } from "react";
-import { Image, Spinner } from "tamagui";
+import { Image as RNImage } from "react-native";
+import { Spinner } from "tamagui";
 import ConnectWalletButton from "../wallet/ConnectWalletButton";
 import InstallWalletModal from "../wallet/InstallWalletModal";
 import WalletSelectorModal from "../wallet/WalletSelectorModal";
@@ -29,6 +30,7 @@ export default function RightPart() {
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [showSelectorModal, setShowSelectorModal] = useState(false);
   const [detectedWallets, setDetectedWallets] = useState<DetectedWallet[]>([]);
+  const [connectedPackage, setConnectedPackage] = useState<string | null>(null);
 
   const connectWithWallet = async (packageName?: string) => {
     setIsConnecting(true);
@@ -40,6 +42,10 @@ export default function RightPart() {
     const success = await signIn();
 
     clearTargetWallet();
+
+    if (success && packageName) {
+      setConnectedPackage(packageName);
+    }
 
     if (!success) {
       const error = getLastError();
@@ -160,11 +166,20 @@ export default function RightPart() {
             userDetails?.username || formatAddress(account.address, 3, 0, 3)
           }
         >
-          {account?.label ? (
-            <Image src={getWalletIcon(account.label)} width={18} height={18} />
-          ) : (
-            <WalletIcon color="#CCCFF9" size={18} />
-          )}
+          {(() => {
+            const walletApp = connectedPackage
+              ? WALLET_APPS.find((w) => w.packageName === connectedPackage)
+              : undefined;
+            if (walletApp?.icon) {
+              return (
+                <RNImage
+                  source={typeof walletApp.icon === "string" ? { uri: walletApp.icon } : walletApp.icon}
+                  style={{ width: 18, height: 18, borderRadius: 4 }}
+                />
+              );
+            }
+            return <WalletIcon color="#CCCFF9" size={18} />;
+          })()}
         </ConnectWalletButton>
       }
     />
