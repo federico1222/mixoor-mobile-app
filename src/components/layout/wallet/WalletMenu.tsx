@@ -1,7 +1,7 @@
 import { formatAddress } from "@/src/helpers";
 import * as Clipboard from "expo-clipboard";
-import { Copy, SignOut } from "phosphor-react-native";
-import { useState } from "react";
+import { Check, Copy, SignOut } from "phosphor-react-native";
+import { useRef, useState } from "react";
 import { Popover, Text, XStack, YStack } from "tamagui";
 
 interface WalletMenuProps {
@@ -16,10 +16,14 @@ export function WalletMenu({
   onDisconnect,
 }: WalletMenuProps) {
   const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const copyAddress = async () => {
     await Clipboard.setStringAsync(address);
-    setOpen(false);
+    setCopied(true);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setCopied(false), 1500);
   };
 
   const handleDisconnect = () => {
@@ -41,15 +45,17 @@ export function WalletMenu({
         elevate
       >
         <YStack width={"100%"}>
-          <Popover.Close asChild>
-            <XStack p={"$2"} onPress={copyAddress} justify={"space-between"}>
-              <Text fontFamily={"$mono"} color="$text" fontSize={"$1"}>
-                {formatAddress(address, 3, 0, 3) || ""}
-              </Text>
+          <XStack p={"$2"} onPress={copyAddress} justify={"space-between"}>
+            <Text fontFamily={"$mono"} color={copied ? "#4ADE80" : "$text"} fontSize={"$1"}>
+              {copied ? "Copied!" : formatAddress(address, 3, 0, 3) || ""}
+            </Text>
 
+            {copied ? (
+              <Check size={14} color={"#4ADE80"} />
+            ) : (
               <Copy size={14} color={"#FFFFFF"} />
-            </XStack>
-          </Popover.Close>
+            )}
+          </XStack>
 
           <Popover.Close asChild>
             <XStack p="$2" justify={"space-between"} onPress={handleDisconnect}>
