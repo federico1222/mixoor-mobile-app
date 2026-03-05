@@ -71,12 +71,24 @@ export const useTransferWithToasts = () => {
     if (!isAuthenticated) {
       const error = getLastError();
       if (!isUserRejection(error)) {
-        const isTimeout = error?.message?.includes("timed out");
+        const msg = error?.message?.toLowerCase() ?? "";
+        const isTimeout = msg.includes("timed out");
+        const isNetwork =
+          msg.includes("network request failed") ||
+          msg.includes("failed to fetch") ||
+          msg.includes("network error");
+
         toast({
           type: "error",
-          title: isTimeout ? "Wallet prompt not detected" : "Authentication Failed",
+          title: isTimeout
+            ? "Wallet prompt not detected"
+            : isNetwork
+            ? "Network Error"
+            : "Authentication Failed",
           description: isTimeout
             ? "Open your wallet and approve the sign request, then try again."
+            : isNetwork
+            ? "Could not reach the server. Check your internet connection and try again."
             : "Please sign the authentication message to continue. If the prompt didn't appear, try reconnecting your wallet.",
           duration: 8000,
         });

@@ -45,7 +45,7 @@ export function useSignIn() {
   const signIn = useCallback(async (): Promise<boolean> => {
     setIsLoading(true);
     try {
-      const connected = account ?? (await connect());
+      const connected = account ?? (await withTimeout(connect(), 60_000, "Wallet connection"));
       const walletAddress = connected.address.toString();
 
       // Allow the OS to fully return focus from the wallet app
@@ -54,7 +54,11 @@ export function useSignIn() {
         await delay(800);
       }
 
-      const startResp = await startWalletAuth(walletAddress);
+      const startResp = await withTimeout(
+        startWalletAuth(walletAddress),
+        30_000,
+        "Authentication request"
+      );
       const data = startResp?.data;
 
       if (data?.authenticated) {
@@ -67,15 +71,19 @@ export function useSignIn() {
       setSigningState("awaiting_wallet");
       const signatureBytes = await withTimeout(
         signMessage(Uint8Array.from(messageBytes)),
-        30_000,
-        "signMessage"
+        60_000,
+        "Wallet signing"
       );
       const signature = getBase58Codec().decode(signatureBytes);
 
-      const finishResp = await finishWalletAuth({
-        signerAddress: walletAddress,
-        signature,
-      });
+      const finishResp = await withTimeout(
+        finishWalletAuth({
+          signerAddress: walletAddress,
+          signature,
+        }),
+        30_000,
+        "Authentication completion"
+      );
 
       if (!finishResp?.success) return false;
 

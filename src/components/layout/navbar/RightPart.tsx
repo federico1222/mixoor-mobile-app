@@ -32,14 +32,26 @@ export default function RightPart() {
       if (isNoWalletsError(error)) {
         setShowInstallModal(true);
       } else if (!isUserRejection(error)) {
-        const isTimeout = error?.message?.includes("timed out");
+        const msg = error?.message?.toLowerCase() ?? "";
+        const isTimeout = msg.includes("timed out");
+        const isNetwork =
+          msg.includes("network request failed") ||
+          msg.includes("failed to fetch") ||
+          msg.includes("network error");
+
         toast({
           type: "error",
-          title: isTimeout ? "Wallet prompt not detected" : "Connection Failed",
+          title: isTimeout
+            ? "Wallet prompt not detected"
+            : isNetwork
+            ? "Network Error"
+            : "Connection Failed",
           description: isTimeout
             ? "Open your wallet and approve the sign request, then try again."
+            : isNetwork
+            ? "Could not reach the server. Check your internet connection and try again."
             : error?.message || "Unable to connect to wallet. Please try again.",
-          ...(isTimeout && { action: { label: "Retry", onPress: handleConnect } }),
+          ...((isTimeout || isNetwork) && { action: { label: "Retry", onPress: handleConnect } }),
         });
       }
     }
