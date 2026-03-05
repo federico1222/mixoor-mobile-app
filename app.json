@@ -89,7 +89,8 @@
           }
         }
       ],
-      "expo-font"
+      "expo-font",
+      "./plugins/with-wallet-discovery"
     ],
     "experiments": {
       "typedRoutes": true,
