@@ -5,7 +5,7 @@ import { Linking, Pressable } from "react-native";
 import { Text, XStack } from "tamagui";
 import WithdrawModal from "./withdraw-modal/WithdrawModal";
 
-export default function ActionCell({ item }: { item: UserDeposits }) {
+export default function ActionCell({ item, userAddress }: { item: UserDeposits; userAddress: string }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   // Snapshot the deposit data at open time so refetches don't close the modal
   const [snapshot, setSnapshot] = useState<UserDeposits | null>(null);
@@ -47,6 +47,7 @@ export default function ActionCell({ item }: { item: UserDeposits }) {
           open={isModalOpen}
           setOpen={setIsModalOpen}
           depositDetails={snapshot}
+          userAddress={userAddress}
         />
       )}
     </XStack>

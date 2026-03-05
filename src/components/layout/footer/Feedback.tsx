@@ -1,10 +1,9 @@
 import { useSendFeedback } from "@/src/hooks/userUser";
 import { useToast } from "@/src/provider";
 import { useEffect, useRef, useState } from "react";
-import { KeyboardAvoidingView, Platform } from "react-native";
+import { KeyboardAvoidingView, Platform, Pressable } from "react-native";
 import {
   Button,
-  Dialog,
   TamaguiElement,
   Text,
   TextArea,
@@ -62,27 +61,29 @@ export default function Feedback() {
       open={open}
       setOpen={setOpen}
       trigger={
-        <Text fontSize="$3" color="$color">
-          Feedback
-        </Text>
+        <Pressable onPress={() => setOpen(true)}>
+          <Text fontSize="$3" color="$color">
+            Feedback
+          </Text>
+        </Pressable>
       }
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <Dialog.Title fontSize="$4" color="$color" fontWeight={600}>
+        <Text fontSize="$4" color="$color" fontWeight={600}>
           We’d love your feedback
-        </Dialog.Title>
+        </Text>
 
         <YStack my="$3" gap="$4">
-          <Dialog.Description
+          <Text
             width="100%"
             fontSize="$2"
             fontWeight="$4"
             color="#C2C7C9"
           >
             Share your thoughts or suggest features you’d like to see added.
-          </Dialog.Description>
+          </Text>
 
           <TextArea
             ref={textAreaRef}

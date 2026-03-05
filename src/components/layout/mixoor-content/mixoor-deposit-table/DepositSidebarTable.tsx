@@ -1,9 +1,10 @@
 import { useUserDeposits } from "@/src/hooks/userUser";
+import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { ArrowUpRightIcon } from "phosphor-react-native";
 import { useState } from "react";
-import { Image, Pressable, ScrollView } from "react-native";
+import { Image, Modal, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Button, Sheet, Text, XStack, YStack } from "tamagui";
+import { Button, Text, XStack, YStack } from "tamagui";
 import ActionCell from "./ActionCell";
 import StatusCell from "./StatusCell";
 
@@ -16,6 +17,7 @@ const TABLE_WIDTH = COL_DATE + COL_AMOUNT + COL_STATUS + COL_ACTION;
 export default function DepositFoundSidebar() {
   const [open, setOpen] = useState(false);
   const { data } = useUserDeposits();
+  const { account } = useMobileWallet();
   const insets = useSafeAreaInsets();
 
   return (
@@ -41,27 +43,20 @@ export default function DepositFoundSidebar() {
         <ArrowUpRightIcon size={14} color="#CACCFC" />
       </Pressable>
 
-      {/* Sheet fullscreen */}
-      <Sheet
-        open={open}
-        onOpenChange={setOpen}
-        snapPoints={[100]}
-        dismissOnSnapToBottom={false}
-        modal
-        disableDrag={true}
+      <Modal
+        visible={open}
+        animationType="slide"
+        onRequestClose={() => setOpen(false)}
+        statusBarTranslucent
       >
-        <Sheet.Overlay
-          backgroundColor="rgba(0, 0, 0, 0.76)"
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-          backdropFilter="blur(10px)"
-        />
-        <Sheet.Frame
-          bg="#09090B"
-          pt={insets.top + 20}
-          pb={Math.max(insets.bottom + 16, 30)}
-          px={20}
-          flex={1}
+        <View
+          style={[
+            styles.frame,
+            {
+              paddingTop: insets.top + 20,
+              paddingBottom: Math.max(insets.bottom + 16, 30),
+            },
+          ]}
         >
           {/* Header */}
           <YStack gap="$3" pb={24}>
@@ -170,7 +165,7 @@ export default function DepositFoundSidebar() {
                         justify="center"
                         items="center"
                       >
-                        <ActionCell item={item} />
+                        <ActionCell item={item} userAddress={account?.address ?? ""} />
                       </XStack>
                     </XStack>
                   );
@@ -190,8 +185,16 @@ export default function DepositFoundSidebar() {
           >
             <Text fontWeight={500}>Close</Text>
           </Button>
-        </Sheet.Frame>
-      </Sheet>
+        </View>
+      </Modal>
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  frame: {
+    flex: 1,
+    backgroundColor: "#09090B",
+    paddingHorizontal: 20,
+  },
+});

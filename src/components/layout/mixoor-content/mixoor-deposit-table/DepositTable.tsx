@@ -105,7 +105,7 @@ export default function DepositTable() {
 
             {/* Action */}
             <XStack width={COL_ACTION} justify="center" items="center">
-              <ActionCell item={item} />
+              <ActionCell item={item} userAddress={account?.address ?? ""} />
             </XStack>
           </XStack>
         ))}
