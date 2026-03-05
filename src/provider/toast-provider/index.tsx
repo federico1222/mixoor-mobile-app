@@ -6,7 +6,8 @@ import {
   XIcon,
 } from "phosphor-react-native";
 import React, { createContext, ReactNode, useContext, useState } from "react";
-import { Linking, Pressable } from "react-native";
+import { Linking } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import {
   Button,
   ToastProvider as TamaguiToastProvider,
@@ -129,9 +130,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               )}
 
               {t.action && (
-                <Pressable
+                <TouchableOpacity
                   onPress={t.action.onPress}
-                  style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+                  activeOpacity={0.6}
                   hitSlop={8}
                 >
                   <Text fontSize={13} style={{ color: config.textColor }}>
@@ -146,7 +147,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                       {t.action.label}
                     </Text>
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               )}
 
               <Toast.Close asChild position="absolute" right="$2" top="$2">
