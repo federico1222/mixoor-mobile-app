@@ -2,6 +2,7 @@
   "name": "mixoor-mobile-app",
   "main": "index.ts",
   "version": "1.0.0",
+  "packageManager": "pnpm@9.9.0",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
