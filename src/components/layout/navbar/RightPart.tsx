@@ -3,12 +3,19 @@ import { isUserRejection, useSignIn, useSignOut } from "@/src/hooks/useAuthentic
 import { useUserDetails } from "@/src/hooks/userUser";
 import { useToast } from "@/src/provider";
 import { isNoWalletsError } from "@/src/utils/detectWallets";
+import {
+  clearTargetWallet,
+  DetectedWallet,
+  getAvailableWallets,
+  setTargetWallet,
+} from "@/src/utils/wallet-discovery";
 import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { WalletIcon } from "phosphor-react-native";
 import { useState } from "react";
 import { Image, Spinner } from "tamagui";
 import ConnectWalletButton from "../wallet/ConnectWalletButton";
 import InstallWalletModal from "../wallet/InstallWalletModal";
+import WalletSelectorModal from "../wallet/WalletSelectorModal";
 import { WalletMenu } from "../wallet/WalletMenu";
 
 export default function RightPart() {
@@ -20,11 +27,19 @@ export default function RightPart() {
 
   const [isConnecting, setIsConnecting] = useState(false);
   const [showInstallModal, setShowInstallModal] = useState(false);
+  const [showSelectorModal, setShowSelectorModal] = useState(false);
+  const [detectedWallets, setDetectedWallets] = useState<DetectedWallet[]>([]);
 
-  const handleConnect = async () => {
+  const connectWithWallet = async (packageName?: string) => {
     setIsConnecting(true);
 
+    if (packageName) {
+      setTargetWallet(packageName);
+    }
+
     const success = await signIn();
+
+    clearTargetWallet();
 
     if (!success) {
       const error = getLastError();
@@ -59,6 +74,37 @@ export default function RightPart() {
     setIsConnecting(false);
   };
 
+  const handleConnect = async () => {
+    setIsConnecting(true);
+
+    try {
+      const wallets = await getAvailableWallets();
+
+      if (wallets.length === 0) {
+        setShowInstallModal(true);
+        setIsConnecting(false);
+        return;
+      }
+
+      if (wallets.length === 1) {
+        await connectWithWallet(wallets[0].packageName);
+        return;
+      }
+
+      // 2+ wallets: show selector
+      setDetectedWallets(wallets);
+      setShowSelectorModal(true);
+      setIsConnecting(false);
+    } catch {
+      // Native module failed — fall back to default MWA flow
+      await connectWithWallet();
+    }
+  };
+
+  const handleSelectWallet = async (wallet: DetectedWallet) => {
+    await connectWithWallet(wallet.packageName);
+  };
+
   if (!account?.address) {
     return (
       <>
@@ -88,6 +134,13 @@ export default function RightPart() {
         <InstallWalletModal
           open={showInstallModal}
           onOpenChange={setShowInstallModal}
+        />
+
+        <WalletSelectorModal
+          open={showSelectorModal}
+          onOpenChange={setShowSelectorModal}
+          wallets={detectedWallets}
+          onSelectWallet={handleSelectWallet}
         />
       </>
     );
