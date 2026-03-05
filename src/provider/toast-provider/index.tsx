@@ -6,7 +6,7 @@ import {
   XIcon,
 } from "phosphor-react-native";
 import React, { createContext, ReactNode, useContext, useState } from "react";
-import { Linking } from "react-native";
+import { Linking, Pressable } from "react-native";
 import {
   Button,
   ToastProvider as TamaguiToastProvider,
@@ -129,19 +129,24 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               )}
 
               {t.action && (
-                <Toast.Description fontSize={13}>
-                  {t.type !== "error" && "View on "}
-                  <Text
-                    style={{
-                      color: config.accent,
-                      textDecorationLine: "underline",
-                    }}
-                    fontSize={13}
-                    onPress={t.action.onPress}
-                  >
-                    {t.action.label}
+                <Pressable
+                  onPress={t.action.onPress}
+                  style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+                  hitSlop={8}
+                >
+                  <Text fontSize={13} style={{ color: config.textColor }}>
+                    {t.type !== "error" && "View on "}
+                    <Text
+                      fontSize={13}
+                      style={{
+                        color: config.accent,
+                        textDecorationLine: "underline",
+                      }}
+                    >
+                      {t.action.label}
+                    </Text>
                   </Text>
-                </Toast.Description>
+                </Pressable>
               )}
 
               <Toast.Close asChild position="absolute" right="$2" top="$2">
