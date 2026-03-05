@@ -10,6 +10,7 @@ import {
   logout,
   startWalletAuth,
 } from "../services/auth.service";
+import { clearTargetWallet } from "../utils/wallet-discovery";
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -123,6 +124,7 @@ export function useSignOut() {
     } catch (error) {
       console.log("Logout error:", error);
     } finally {
+      clearTargetWallet();
       await AsyncStorage.removeItem(SESSION_COOKIE_KEY);
       await disconnect();
       queryClient.invalidateQueries({ queryKey: ["startAuthMessage"] });

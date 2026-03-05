@@ -1,22 +1,44 @@
 import CustomTooltip from "@/src/components/common/CustomTooltip";
+import InstallWalletModal from "@/src/components/layout/wallet/InstallWalletModal";
+import WalletSelectorModal from "@/src/components/layout/wallet/WalletSelectorModal";
 import { useMobileWallet } from "@wallet-ui/react-native-kit";
-import { useSignIn } from "@/src/hooks/useAuthenticate";
+import { useWalletConnect } from "@/src/hooks/useWalletConnect";
 import { calculateTransferFee } from "@/src/helpers/calculations";
 import { useTokenSelection, useTransferInput } from "@/src/provider";
 import { InfoIcon, PaperPlaneTiltIcon } from "phosphor-react-native";
 import { useState } from "react";
-import { Button, Text, XStack, YStack } from "tamagui";
+import { Button, Spinner, Text, XStack, YStack } from "tamagui";
 import SendTxModal from "./SendTxModal";
 
 export default function SendButton() {
   const [openTxModal, setOpenTxModal] = useState(false);
 
   const { account } = useMobileWallet();
-  const { signIn } = useSignIn();
+  const {
+    isConnecting,
+    signingState,
+    showInstallModal,
+    setShowInstallModal,
+    showSelectorModal,
+    setShowSelectorModal,
+    detectedWallets,
+    handleConnect,
+    handleSelectWallet,
+  } = useWalletConnect();
 
   const { selectedToken } = useTokenSelection();
   const { uiAmount, transferType, isMultipleWallets, totalAmount } =
     useTransferInput();
+
+  const buttonLabel = !account?.address
+    ? signingState === "awaiting_wallet"
+      ? "Check your wallet..."
+      : isConnecting
+      ? "Connecting..."
+      : "Connect Wallet"
+    : transferType === "direct"
+      ? "Send Privately"
+      : "Deposit";
 
   return (
     <>
@@ -57,17 +79,13 @@ export default function SendButton() {
           width={"100%"}
           height={"$4"}
           bg={"#5D44BE"}
-          onPress={() => (account?.address ? setOpenTxModal(true) : signIn())}
+          onPress={() => (account?.address ? setOpenTxModal(true) : handleConnect())}
+          disabled={isConnecting}
+          opacity={isConnecting ? 0.7 : 1}
         >
-          <Text color={"$secondary"}>
-            {!account?.address
-              ? "Connect Wallet"
-              : transferType === "direct"
-                ? "Send Privately"
-                : "Deposit"}
-          </Text>
-
-          <PaperPlaneTiltIcon size={16} color="#CCCFF9" />
+          {isConnecting && <Spinner size="small" color="#CCCFF9" />}
+          <Text color={"$secondary"}>{buttonLabel}</Text>
+          {!isConnecting && <PaperPlaneTiltIcon size={16} color="#CCCFF9" />}
         </Button>
       </YStack>
 
@@ -75,6 +93,18 @@ export default function SendButton() {
       {account?.address && (
         <SendTxModal open={openTxModal} setOpen={setOpenTxModal} />
       )}
+
+      <InstallWalletModal
+        open={showInstallModal}
+        onOpenChange={setShowInstallModal}
+      />
+
+      <WalletSelectorModal
+        open={showSelectorModal}
+        onOpenChange={setShowSelectorModal}
+        wallets={detectedWallets}
+        onSelectWallet={handleSelectWallet}
+      />
     </>
   );
 }

@@ -1,17 +1,10 @@
 import { formatAddress } from "@/src/helpers";
-import { isUserRejection, useSignIn, useSignOut } from "@/src/hooks/useAuthenticate";
+import { useSignOut } from "@/src/hooks/useAuthenticate";
+import { useWalletConnect } from "@/src/hooks/useWalletConnect";
 import { useUserDetails } from "@/src/hooks/userUser";
-import { useToast } from "@/src/provider";
-import { WALLET_APPS, isNoWalletsError } from "@/src/utils/detectWallets";
-import {
-  clearTargetWallet,
-  DetectedWallet,
-  getAvailableWallets,
-  setTargetWallet,
-} from "@/src/utils/wallet-discovery";
+import { WALLET_APPS } from "@/src/utils/detectWallets";
 import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { WalletIcon } from "phosphor-react-native";
-import { useState } from "react";
 import { Image as RNImage } from "react-native";
 import { Spinner } from "tamagui";
 import ConnectWalletButton from "../wallet/ConnectWalletButton";
@@ -20,96 +13,22 @@ import WalletSelectorModal from "../wallet/WalletSelectorModal";
 import { WalletMenu } from "../wallet/WalletMenu";
 
 export default function RightPart() {
-  const { toast } = useToast();
   const { data: userDetails } = useUserDetails();
   const { account } = useMobileWallet();
-  const { signIn, signingState, getLastError } = useSignIn();
   const { signOut } = useSignOut();
 
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [showInstallModal, setShowInstallModal] = useState(false);
-  const [showSelectorModal, setShowSelectorModal] = useState(false);
-  const [detectedWallets, setDetectedWallets] = useState<DetectedWallet[]>([]);
-  const [connectedPackage, setConnectedPackage] = useState<string | null>(null);
-
-  const connectWithWallet = async (packageName?: string) => {
-    setIsConnecting(true);
-
-    if (packageName) {
-      setTargetWallet(packageName);
-    }
-
-    const success = await signIn();
-
-    clearTargetWallet();
-
-    if (success && packageName) {
-      setConnectedPackage(packageName);
-    }
-
-    if (!success) {
-      const error = getLastError();
-
-      if (isNoWalletsError(error)) {
-        setShowInstallModal(true);
-      } else if (!isUserRejection(error)) {
-        const msg = error?.message?.toLowerCase() ?? "";
-        const isTimeout = msg.includes("timed out");
-        const isNetwork =
-          msg.includes("network request failed") ||
-          msg.includes("failed to fetch") ||
-          msg.includes("network error");
-
-        toast({
-          type: "error",
-          title: isTimeout
-            ? "Wallet prompt not detected"
-            : isNetwork
-            ? "Network Error"
-            : "Connection Failed",
-          description: isTimeout
-            ? "Open your wallet and approve the sign request, then try again."
-            : isNetwork
-            ? "Could not reach the server. Check your internet connection and try again."
-            : error?.message || "Unable to connect to wallet. Please try again.",
-          ...((isTimeout || isNetwork) && { action: { label: "Retry", onPress: handleConnect } }),
-        });
-      }
-    }
-
-    setIsConnecting(false);
-  };
-
-  const handleConnect = async () => {
-    setIsConnecting(true);
-
-    try {
-      const wallets = await getAvailableWallets();
-
-      if (wallets.length === 0) {
-        setShowInstallModal(true);
-        setIsConnecting(false);
-        return;
-      }
-
-      if (wallets.length === 1) {
-        await connectWithWallet(wallets[0].packageName);
-        return;
-      }
-
-      // 2+ wallets: show selector
-      setDetectedWallets(wallets);
-      setShowSelectorModal(true);
-      setIsConnecting(false);
-    } catch {
-      // Native module failed — fall back to default MWA flow
-      await connectWithWallet();
-    }
-  };
-
-  const handleSelectWallet = async (wallet: DetectedWallet) => {
-    await connectWithWallet(wallet.packageName);
-  };
+  const {
+    isConnecting,
+    signingState,
+    connectedPackage,
+    showInstallModal,
+    setShowInstallModal,
+    showSelectorModal,
+    setShowSelectorModal,
+    detectedWallets,
+    handleConnect,
+    handleSelectWallet,
+  } = useWalletConnect();
 
   if (!account?.address) {
     return (
