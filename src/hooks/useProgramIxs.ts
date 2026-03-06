@@ -82,7 +82,6 @@ export const useDeposit = () => {
         throw new Error("invalid arguments");
       }
 
-      // FIXME: determine whether to use og or token22
       const [depositorTokenAccount] = await findAssociatedTokenPda({
         owner: account.address,
         tokenProgram: address(selectedToken.tokenProgram),
