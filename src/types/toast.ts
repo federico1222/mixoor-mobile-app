@@ -40,4 +40,6 @@ export type ToastContextValue = {
     txSignature: string;
     cluster?: string;
   }) => void;
+  _toasts: ToastData[];
+  _remove: (id: string) => void;
 };

@@ -1,3 +1,4 @@
+import { ToastOverlay } from "@/src/provider/toast-provider";
 import { useUserDeposits } from "@/src/hooks/userUser";
 import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { ArrowUpRightIcon } from "phosphor-react-native";
@@ -49,6 +50,7 @@ export default function DepositFoundSidebar() {
         onRequestClose={() => setOpen(false)}
         statusBarTranslucent
       >
+        <ToastOverlay />
         <View
           style={[
             styles.frame,

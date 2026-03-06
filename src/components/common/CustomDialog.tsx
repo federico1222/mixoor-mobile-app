@@ -1,3 +1,4 @@
+import { ToastOverlay } from "@/src/provider/toast-provider";
 import { X } from "phosphor-react-native";
 import React from "react";
 import { Modal, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
@@ -31,6 +32,7 @@ export default function CustomDialog({
         onRequestClose={() => setOpen(false)}
         statusBarTranslucent
       >
+        <ToastOverlay />
         <TouchableWithoutFeedback onPress={() => setOpen(false)}>
           <View style={styles.overlay}>
             <TouchableWithoutFeedback>
