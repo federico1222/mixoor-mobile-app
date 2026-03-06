@@ -38,8 +38,7 @@ export const useUserDetails = () => {
         }
 
         return resp.data as UserDetails;
-      } catch (error) {
-        console.log("Error fetching user details ->", error);
+      } catch {
         return null;
       }
     },
@@ -80,7 +79,6 @@ export const useUserPreviousTransfers = (
         );
         return resp;
       } catch (error) {
-        console.log("error fetching previous user transactions ->", error);
         throw error;
       }
     },
@@ -101,8 +99,7 @@ export const useUserDeposits = () => {
         const resp = await fetchUserDeposits(account?.address);
 
         return resp?.data ?? [];
-      } catch (error) {
-        console.log("error fetching unspent user deposits ->", error);
+      } catch {
         return [];
       }
     },

@@ -19,21 +19,16 @@ export const BASE_URL = `${MIXOOR_BACKEND_API_ENDPOINT}/transfer`;
 export async function directTransferFromBE(
   data: TransferPayload
 ): Promise<DirectTransferResp> {
-  try {
-    const resp = await fetch(`${BASE_URL}/direct`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
+  const resp = await fetch(`${BASE_URL}/direct`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
 
-    return await resp.json();
-  } catch (error) {
-    console.log("error calling direct transfer ->", error);
-    throw error;
-  }
+  return resp.json();
 }
 
 /**
@@ -49,18 +44,13 @@ export async function directTransferFromBE(
 export async function sparsedTransferFromBE(
   data: TransferSparsedPayload
 ): Promise<TransferSparsedResp> {
-  try {
-    const resp = await fetch(`${BASE_URL}/sparsed`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(data),
-    });
-    return await resp.json();
-  } catch (error) {
-    console.log("error calling sparsed transfer ->", error);
-    throw error;
-  }
+  const resp = await fetch(`${BASE_URL}/sparsed`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+    body: JSON.stringify(data),
+  });
+  return resp.json();
 }

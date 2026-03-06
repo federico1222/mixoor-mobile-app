@@ -158,14 +158,46 @@ export const useDeposit = () => {
       });
   }, [selectedToken, transferInput]);
 
+  const buildSignAndConfirm = useCallback(
+    async (
+      instructions: Parameters<typeof appendTransactionMessageInstructions>[0],
+      sendingSigner: Awaited<ReturnType<typeof getSendingSigner>>,
+    ): Promise<Signature> => {
+      const {
+        context: { slot: minContextSlot },
+        value: latestBlockhash,
+      } = await client.rpc.getLatestBlockhash().send();
+      const transactionMessage = pipe(
+        createTransactionMessage({ version: 0 }),
+        (tx) => appendTransactionMessageInstructions(instructions, tx),
+        (tx) => setTransactionMessageFeePayerSigner(sendingSigner, tx),
+        (tx) =>
+          setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
+      );
+      const tx = compileTransaction(transactionMessage);
+      const txSigBytes = await signAndSendTransaction(tx, minContextSlot);
+      const txSignature = getBase58Codec().decode(txSigBytes) as Signature;
+
+      const isConfirmedResp = await confirmTransactionStatusWithRetry(
+        client,
+        [txSignature],
+      );
+      const isConfirmed = isConfirmedResp.every(
+        (s) => s !== null && s.err === null,
+      );
+      if (!isConfirmed) throw new Error("Transaction error or confirm fail");
+
+      return txSignature;
+    },
+    [client, signAndSendTransaction],
+  );
+
   const deposit = useCallback(async (): Promise<DepositResult> => {
     if (!account?.address) {
       const err = new Error("Please connect your wallet!!!");
       setError(err);
       throw err;
     }
-    console.log("selectedtoken", selectedToken);
-
     if (!selectedToken?.mintAddress || !selectedToken?.decimals) {
       throw new Error("Invalid mint address or decimals");
     }
@@ -226,34 +258,7 @@ export const useDeposit = () => {
 
         const instructions = [transferFeeIx, ...depositInstructions];
 
-        // --------- start here
-        // FIXME: REPETITION
-        const {
-          context: { slot: minContextSlot },
-          value: latestBlockhash,
-        } = await client.rpc.getLatestBlockhash().send();
-        const transactionMessage = pipe(
-          createTransactionMessage({ version: 0 }),
-          (tx) => appendTransactionMessageInstructions(instructions, tx),
-          (tx) => setTransactionMessageFeePayerSigner(sendingSigner, tx),
-          (tx) =>
-            setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
-        );
-        const tx = compileTransaction(transactionMessage);
-
-        let txSigBytes = await signAndSendTransaction(tx, minContextSlot);
-
-        txSignature = getBase58Codec().decode(txSigBytes) as Signature;
-        //  ----------- end here
-
-        const isConfirmedResp = await confirmTransactionStatusWithRetry(
-          client,
-          [txSignature],
-        );
-        const isConfirmed = isConfirmedResp.every(
-          (s) => s !== null && s.err === null,
-        );
-        if (!isConfirmed) throw new Error("Transaction error or confirm fail");
+        txSignature = await buildSignAndConfirm(instructions, sendingSigner);
 
         setIsLoading(false);
 
@@ -292,37 +297,7 @@ export const useDeposit = () => {
 
         const instructions = [transferFeeIx, ...depositInstructions];
 
-        // txSignature = (await sendTransaction(instructions)) as Signature;
-
-        // --------- start here
-        // FIXME: REPETITION
-
-        const {
-          context: { slot: minContextSlot },
-          value: latestBlockhash,
-        } = await client.rpc.getLatestBlockhash().send();
-        const transactionMessage = pipe(
-          createTransactionMessage({ version: 0 }),
-          (tx) => appendTransactionMessageInstructions(instructions, tx),
-          (tx) => setTransactionMessageFeePayerSigner(sendingSigner, tx),
-          (tx) =>
-            setTransactionMessageLifetimeUsingBlockhash(latestBlockhash, tx),
-        );
-        const tx = compileTransaction(transactionMessage);
-
-        let txSigBytes = await signAndSendTransaction(tx, minContextSlot);
-
-        txSignature = getBase58Codec().decode(txSigBytes) as Signature;
-        // --------- end here
-
-        const isConfirmedResp = await confirmTransactionStatusWithRetry(
-          client,
-          [txSignature],
-        );
-        const isConfirmed = isConfirmedResp.every(
-          (s) => s !== null && s.err === null,
-        );
-        if (!isConfirmed) throw new Error("Transaction error or confirm fail");
+        txSignature = await buildSignAndConfirm(instructions, sendingSigner);
 
         setIsLoading(false);
 
@@ -337,19 +312,15 @@ export const useDeposit = () => {
       }
     } catch (err) {
       setIsLoading(false);
-      console.log("deposit Error:", err);
       throw err;
     }
   }, [
     account?.address,
-    client,
+    buildSignAndConfirm,
     constructDepositInstruction,
     getMultiRecipientAmounts,
     getSendingSigner,
     isMultipleWallets,
-    // selectedToken?.decimals,
-    // selectedToken?.mintAddress,
-    signAndSendTransaction,
     transferInput,
     uiAmount,
     selectedToken,

@@ -29,56 +29,41 @@ async function fetchWithRetry(
 export async function startWalletAuth(
   address: string
 ): Promise<StartWalletAuthResp> {
-  try {
-    const resp = await fetchWithRetry(`${BASE_URL}/start/${address}`, {
-      credentials: "include",
-    });
+  const resp = await fetchWithRetry(`${BASE_URL}/start/${address}`, {
+    credentials: "include",
+  });
 
-    return resp.json();
-  } catch (error) {
-    console.log("error initiating auth ->", error);
-    throw error;
-  }
+  return resp.json();
 }
 
 export async function finishWalletAuth(data?: {
   signerAddress?: string;
   signature?: string;
 }) {
-  try {
-    const resp = await fetchWithRetry(`${BASE_URL}/finish`, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-      body: JSON.stringify(data),
-      credentials: "include",
-    });
+  const resp = await fetchWithRetry(`${BASE_URL}/finish`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    method: "POST",
+    body: JSON.stringify(data),
+    credentials: "include",
+  });
 
-    const sessionCookie = resp.headers.get("set-cookie");
-    const body = await resp.json();
-    return { ...body, sessionCookie };
-  } catch (error) {
-    console.log("error completing auth ->", error);
-    throw error;
-  }
+  const sessionCookie = resp.headers.get("set-cookie");
+  const body = await resp.json();
+  return { ...body, sessionCookie };
 }
 
 export async function logout() {
-  try {
-    const cookieHeader = await getSessionCookieHeader();
-    const resp = await fetch(`${BASE_URL}/logout`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        ...cookieHeader,
-      },
-    });
+  const cookieHeader = await getSessionCookieHeader();
+  const resp = await fetch(`${BASE_URL}/logout`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "application/json",
+      ...cookieHeader,
+    },
+  });
 
-    return resp.json();
-  } catch (error) {
-    console.log("error signing out ->", error);
-    throw error;
-  }
+  return resp.json();
 }

@@ -41,14 +41,8 @@ export async function saveNewUser(data: CreateUserPayload) {
 }
 
 export async function fetchUserDetails(address: string) {
-  try {
-    const resp = await fetch(`${BASE_URL}/address/${address}`);
-
-    return await resp.json();
-  } catch (error) {
-    console.log("error fetching user details", error);
-    throw error;
-  }
+  const resp = await fetch(`${BASE_URL}/address/${address}`);
+  return resp.json();
 }
 
 export async function privateUserTransfers(
@@ -57,57 +51,42 @@ export async function privateUserTransfers(
   offset: number = 0,
   sortOrder: "asc" | "desc" = "desc"
 ) {
-  try {
-    const url = `${BASE_URL}/address/${userAddress}/transfers`;
-    const cookieHeader = await getSessionCookieHeader();
-    const resp = await fetch(
-      `${url}?limit=${limit}&offset=${offset}&sortOrder=${sortOrder}`,
-      {
-        credentials: "include",
-        headers: cookieHeader,
-      }
-    );
+  const url = `${BASE_URL}/address/${userAddress}/transfers`;
+  const cookieHeader = await getSessionCookieHeader();
+  const resp = await fetch(
+    `${url}?limit=${limit}&offset=${offset}&sortOrder=${sortOrder}`,
+    {
+      credentials: "include",
+      headers: cookieHeader,
+    }
+  );
 
-    return resp.json();
-  } catch (error) {
-    console.log("error fetching user deposits");
-    throw error;
-  }
+  return resp.json();
 }
 
 export async function fetchUserDeposits(
   userAddress: string,
   status: "all" | "unspent" = "unspent"
 ) {
-  try {
-    const cookieHeader = await getSessionCookieHeader();
-    const resp = await fetch(
-      `${BASE_URL}/address/${userAddress}/deposits?status=${status}`,
-      {
-        credentials: "include",
-        headers: cookieHeader,
-      }
-    );
+  const cookieHeader = await getSessionCookieHeader();
+  const resp = await fetch(
+    `${BASE_URL}/address/${userAddress}/deposits?status=${status}`,
+    {
+      credentials: "include",
+      headers: cookieHeader,
+    }
+  );
 
-    return resp.json();
-  } catch (error) {
-    console.log("error fetching user deposits");
-    throw error;
-  }
+  return resp.json();
 }
 
 // me endpoint that only returns when user
 // is authenticated
 export async function fetchUserDetailAuthenticated() {
-  try {
-    const cookieHeader = await getSessionCookieHeader();
-    const resp = await fetch(`${BASE_URL}/me`, {
-      headers: cookieHeader,
-    });
+  const cookieHeader = await getSessionCookieHeader();
+  const resp = await fetch(`${BASE_URL}/me`, {
+    headers: cookieHeader,
+  });
 
-    return resp.json();
-  } catch (error) {
-    console.log("error fetching logged in details");
-    throw error;
-  }
+  return resp.json();
 }

@@ -23,7 +23,6 @@ export const useUserSolBalance = () => {
         return (await client.rpc.getBalance(address(account?.address)).send())
           .value;
       } catch (error) {
-        console.log("error fetching user balance ->", error);
         throw error;
       }
     },
@@ -60,7 +59,6 @@ export const useUserSPLTokenBalance = (
           await client.rpc.getTokenAccountBalance(associatedTokenAddress).send()
         ).value.amount;
       } catch (error) {
-        console.log("error fetching token balance ->", error);
         throw error;
       }
     },

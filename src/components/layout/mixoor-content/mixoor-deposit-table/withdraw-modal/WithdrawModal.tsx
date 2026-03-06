@@ -61,7 +61,6 @@ export default function WithdrawModal({
         description: `Sent ${depositDetails.uiAmount} ${depositDetails?.tokenMetadata?.symbol ?? ""} privately.`,
       });
     } catch (error) {
-      console.log("Withdraw error:", error);
       setWithdrawError(true);
       setWithdrawSuccess(false);
       toast({

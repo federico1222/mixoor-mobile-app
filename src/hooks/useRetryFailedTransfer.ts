@@ -20,11 +20,8 @@ export function useRetryFailedTransfer(onSuccess?: () => void) {
 
       if (response.success) {
         onSuccess?.();
-      } else {
-        console.log("Retry transfer failed:", response);
       }
-    } catch (error) {
-      console.log("Retry transfer error:", error);
+    } catch {
     } finally {
       setRetryingId(null);
     }

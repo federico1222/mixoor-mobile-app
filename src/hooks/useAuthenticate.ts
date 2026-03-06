@@ -41,7 +41,7 @@ export function useSignIn() {
   const { connect, signMessage, account } = useMobileWallet();
   const { setAuthenticated } = useAuth();
 
-  const lastErrorRef = useRef<any>(null);
+  const lastErrorRef = useRef<Error | null>(null);
 
   const signIn = useCallback(async (): Promise<boolean> => {
     setIsLoading(true);
@@ -98,8 +98,7 @@ export function useSignIn() {
       setAuthenticated(true);
       return true;
     } catch (error) {
-      console.log("Sign in error:", error);
-      lastErrorRef.current = error;
+      lastErrorRef.current = error instanceof Error ? error : new Error(String(error));
       return false;
     } finally {
       setSigningState("idle");
@@ -121,8 +120,7 @@ export function useSignOut() {
     setAuthenticated(false);
     try {
       await logout();
-    } catch (error) {
-      console.log("Logout error:", error);
+    } catch {
     } finally {
       clearTargetWallet();
       await AsyncStorage.removeItem(SESSION_COOKIE_KEY);

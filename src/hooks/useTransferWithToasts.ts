@@ -1,4 +1,3 @@
-import { isSolanaError } from "@solana/kit";
 import { useQueryClient } from "@tanstack/react-query";
 import * as Clipboard from "expo-clipboard";
 import { useCallback, useState } from "react";
@@ -184,7 +183,6 @@ export const useTransferWithToasts = () => {
           } to ${clipAddress(recipient)}`,
         });
       } catch (err) {
-        console.log("Error retrying transfer:", err);
         setError(true);
         setSuccess(false);
         toast({
@@ -399,9 +397,6 @@ export const useTransferWithToasts = () => {
           });
         }
       } catch (err) {
-        console.log("⚠️ Please share the error below with the dev team ⚠️");
-        console.log("Error Type:", isSolanaError(err) ? "Solana" : "General");
-        console.log(err);
         handleTransferError(
           err instanceof Error ? err.message : "Unknown error occurred",
           undefined,

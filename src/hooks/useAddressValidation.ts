@@ -1,5 +1,5 @@
 import { isAddress } from "@solana/kit";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useDebounceValue } from "tamagui";
 import { isSnsDomainFormat, resolveSnsDomain } from "../types/sns";
 
@@ -61,8 +61,7 @@ export function useAddressValidation(address: string) {
           isLoading: false,
           errorMessage: "SNS domain not found",
         };
-      } catch (error) {
-        console.log("Error in SNS resolution:", error);
+      } catch {
         return {
           isValid: false,
           isLoading: false,
@@ -78,6 +77,8 @@ export function useAddressValidation(address: string) {
     };
   };
 
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+
   const handleInputChange = (value: string) => {
     setHasBeenTouched(true);
     setIsTyping(true);
@@ -89,11 +90,10 @@ export function useAddressValidation(address: string) {
       }));
     }
 
-    const timeout = setTimeout(() => {
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    typingTimeoutRef.current = setTimeout(() => {
       setIsTyping(false);
     }, 200);
-
-    return () => clearTimeout(timeout);
   };
 
   useEffect(() => {
