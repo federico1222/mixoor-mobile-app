@@ -91,11 +91,12 @@ export default function DepositTable() {
               <Text fontSize={14} color="#FAFAFA" fontWeight="400">
                 {item?.uiAmount}
               </Text>
-              {/* FIXME: USE UNKNOWN TOKEN IMAGE BELOW */}
-              <Image
-                source={{ uri: item.tokenMetadata?.image }}
-                style={{ width: 24, height: 24, borderRadius: 8 }}
-              />
+              {item.tokenMetadata?.image && (
+                <Image
+                  source={{ uri: item.tokenMetadata.image }}
+                  style={{ width: 24, height: 24, borderRadius: 8 }}
+                />
+              )}
             </XStack>
 
             {/* Status */}

@@ -42,6 +42,12 @@ function clipAddress(addr: string) {
   return formatAddress(addr, 0, 4, 4) ?? addr;
 }
 
+function transferLabel(type: TransferType) {
+  return type === "delayed" ? "Deposit" : "Transfer";
+}
+
+type Phase = "idle" | "backend" | "retrying" | "success" | "error";
+
 export const useTransferWithToasts = () => {
   const { deposit, isLoading } = useDeposit();
   const { refetch } = useUserPreviousTransfers();
@@ -58,10 +64,7 @@ export const useTransferWithToasts = () => {
     ]);
   }, [refetch, queryClient]);
 
-  const [error, setError] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [isBELoading, setIsBELoading] = useState(false);
-  const [isRetryLoading, setIsRetryLoading] = useState(false);
+  const [phase, setPhase] = useState<Phase>("idle");
   const [lastTransferData, setLastTransferData] =
     useState<RetryTransferParams | null>(null);
 
@@ -99,16 +102,16 @@ export const useTransferWithToasts = () => {
 
   const retryTransfer = useCallback(
     async (retryParams?: RetryTransferParams) => {
-      setIsRetryLoading(true);
+      setPhase("retrying");
       const paramsToUse = retryParams ?? lastTransferData;
 
       if (!paramsToUse) {
-        setIsRetryLoading(false);
+        setPhase("idle");
         return;
       }
 
       if (!(await checkAuthentication())) {
-        setIsRetryLoading(false);
+        setPhase("idle");
         return;
       }
 
@@ -129,7 +132,7 @@ export const useTransferWithToasts = () => {
       toast({
         type: "info",
         title: `Retrying ${
-          transferType === "delayed" ? "deposit" : "transfer"
+          transferLabel(transferType).toLowerCase()
         }`,
         description: "Processing retry transaction...",
       });
@@ -151,13 +154,10 @@ export const useTransferWithToasts = () => {
         });
 
         if (!response.success) {
-          setError(true);
-          setSuccess(false);
+          setPhase("error");
           toast({
             type: "error",
-            title: `${
-              transferType === "delayed" ? "Deposit" : "Transfer"
-            } Failed`,
+            title: `${transferLabel(transferType)} Failed`,
             description:
               response.message ?? "An error occurred during the transfer",
             action: {
@@ -171,25 +171,19 @@ export const useTransferWithToasts = () => {
           return;
         }
 
-        setSuccess(true);
-        setError(false);
+        setPhase("success");
         toast({
           type: "success",
-          title: `${
-            transferType === "delayed" ? "Deposit" : "Transfer"
-          } Completed`,
+          title: `${transferLabel(transferType)} Completed`,
           description: `Sent ${displayAmount} ${
             selectedToken.symbol
           } to ${clipAddress(recipient)}`,
         });
       } catch (err) {
-        setError(true);
-        setSuccess(false);
+        setPhase("error");
         toast({
           type: "error",
-          title: `${
-            transferType === "delayed" ? "Deposit" : "Transfer"
-          } Failed`,
+          title: `${transferLabel(transferType)} Failed`,
           description:
             err instanceof Error ? err.message : "Unknown error occurred",
           action: {
@@ -203,7 +197,6 @@ export const useTransferWithToasts = () => {
           },
         });
       } finally {
-        setIsRetryLoading(false);
         refetchAll();
       }
     },
@@ -218,16 +211,13 @@ export const useTransferWithToasts = () => {
       userAddress,
       transferType,
     }: TransferParams) => {
-      setSuccess(false);
-      setError(false);
+      setPhase("idle");
 
       if (!(await checkAuthentication())) return;
 
       toast({
         type: "info",
-        title: `Processing ${
-          transferType === "delayed" ? "deposit" : "transfer"
-        }`,
+        title: `Processing ${transferLabel(transferType).toLowerCase()}`,
         description: "Sending transaction and waiting for confirmation…",
       });
 
@@ -236,8 +226,7 @@ export const useTransferWithToasts = () => {
         retryData?: RetryTransferParams,
         errorToCopy?: unknown
       ) => {
-        setError(true);
-        setSuccess(false);
+        setPhase("error");
         if (retryData) setLastTransferData(retryData);
 
         const errorText =
@@ -247,9 +236,7 @@ export const useTransferWithToasts = () => {
 
         toast({
           type: "error",
-          title: `${
-            transferType === "delayed" ? "Deposit" : "Transfer"
-          } Failed`,
+          title: `${transferLabel(transferType)} Failed`,
           description,
           duration: 100000,
           action: {
@@ -263,7 +250,7 @@ export const useTransferWithToasts = () => {
         const depositResult: DepositResult = await deposit();
 
         // Keep loading state continuous — no gap between on-chain and backend phases
-        setIsBELoading(true);
+        setPhase("backend");
 
         showTransactionToast({
           title: "Transaction Sent",
@@ -306,7 +293,6 @@ export const useTransferWithToasts = () => {
             multiRecipients: recipients,
             transferType,
           });
-          setIsBELoading(false);
 
           if (!response?.success) {
             handleTransferError(
@@ -317,13 +303,10 @@ export const useTransferWithToasts = () => {
             return;
           }
 
-          setSuccess(true);
-          setError(false);
+          setPhase("success");
           toast({
             type: "success",
-            title: `${
-              transferType === "delayed" ? "Deposit" : "Transfer"
-            } Completed`,
+            title: `${transferLabel(transferType)} Completed`,
             description: `Sent ${uiAmount} ${selectedToken.symbol} to ${recipients.length} wallets`,
           });
         } else {
@@ -370,7 +353,6 @@ export const useTransferWithToasts = () => {
                   decimals: selectedToken.decimals,
                   tokenProgram: selectedToken.tokenProgram,
                 });
-          setIsBELoading(false);
 
           if (!response?.success) {
             handleTransferError(
@@ -380,14 +362,11 @@ export const useTransferWithToasts = () => {
             return;
           }
 
-          setSuccess(true);
-          setError(false);
+          setPhase("success");
 
           toast({
             type: "success",
-            title: `${
-              transferType === "delayed" ? "Deposit" : "Transfer"
-            } Completed`,
+            title: `${transferLabel(transferType)} Completed`,
             description:
               transferType === "delayed"
                 ? "Deposit successful. You can send your deposit any time"
@@ -413,11 +392,11 @@ export const useTransferWithToasts = () => {
     handleTransfer,
     retryTransfer,
     lastTransferData,
-    isRetryLoading,
-    isLoading: isLoading || isBELoading,
-    success,
-    error,
-    setError,
-    setSuccess,
+    isRetryLoading: phase === "retrying",
+    isLoading: isLoading || phase === "backend" || phase === "retrying",
+    success: phase === "success",
+    error: phase === "error",
+    setError: (v: boolean) => setPhase(v ? "error" : "idle"),
+    setSuccess: (v: boolean) => setPhase(v ? "success" : "idle"),
   };
 };

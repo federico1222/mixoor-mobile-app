@@ -60,7 +60,7 @@ export type DepositResult =
   | ({ isMultipleWallets: true } & MultiDepositResult);
 
 export const useDeposit = () => {
-  const { client, signAndSendTransaction, sendTransaction, account } =
+  const { client, signAndSendTransaction, account } =
     useMobileWallet();
   const { getSendingSigner } = useTransactionSigner();
   const { transferInput, isMultipleWallets, uiAmount } = useTransferInput();
@@ -192,6 +192,89 @@ export const useDeposit = () => {
     [client, signAndSendTransaction],
   );
 
+  const buildAndSendDeposit = useCallback(
+    async (
+      depositInstructions: Awaited<ReturnType<typeof getDepositInstructionAsync>>[],
+      sendingSigner: Awaited<ReturnType<typeof getSendingSigner>>,
+      txFee: bigint,
+    ): Promise<Signature> => {
+      const transferFeeIx = await transferLamportsInstruction({
+        source: sendingSigner,
+        destination: RELAYER_ADDRESS,
+        amount: txFee,
+      });
+      return buildSignAndConfirm(
+        [transferFeeIx, ...depositInstructions],
+        sendingSigner,
+      );
+    },
+    [buildSignAndConfirm],
+  );
+
+  const depositMultiRecipient = useCallback(
+    async (args: {
+      sendingSigner: Awaited<ReturnType<typeof getSendingSigner>>;
+      mint: Address;
+      assetType: AssetType;
+      pool: Address;
+      txFee: bigint;
+    }): Promise<{ isMultipleWallets: true } & MultiDepositResult> => {
+      const { sendingSigner, mint, assetType, pool, txFee } = args;
+      const recipientAmounts = getMultiRecipientAmounts();
+      const depositInstructions: Awaited<ReturnType<typeof getDepositInstructionAsync>>[] = [];
+      const recipients: Omit<MultiRecipient, "txSignature">[] = [];
+
+      for (const { destination, scaledAmount } of recipientAmounts) {
+        const result = await constructDepositInstruction({ scaledAmount, assetType, mint, pool });
+        depositInstructions.push(result.depositIx);
+        recipients.push({
+          destination,
+          amount: scaledAmount.toString(),
+          secret: Buffer.from(result.secret).toString("base64"),
+          nullifier: Buffer.from(result.nullifier).toString("base64"),
+          commitment: Buffer.from(result.commitment).toString("base64"),
+        });
+      }
+
+      const txSignature = await buildAndSendDeposit(depositInstructions, sendingSigner, txFee);
+
+      return {
+        isMultipleWallets: true,
+        txSignature,
+        recipients: recipients.map((r) => ({ ...r, txSignature })),
+      };
+    },
+    [constructDepositInstruction, getMultiRecipientAmounts, buildAndSendDeposit],
+  );
+
+  const depositSingleRecipient = useCallback(
+    async (args: {
+      sendingSigner: Awaited<ReturnType<typeof getSendingSigner>>;
+      mint: Address;
+      assetType: AssetType;
+      pool: Address;
+      txFee: bigint;
+      decimals: number;
+    }): Promise<{ isMultipleWallets: false } & SingleDepositResult> => {
+      const { sendingSigner, mint, assetType, pool, txFee, decimals } = args;
+      const scaledAmount = scaleToTokenAmount(uiAmount, decimals);
+
+      const result = await constructDepositInstruction({ scaledAmount, assetType, mint, pool });
+
+      const txSignature = await buildAndSendDeposit([result.depositIx], sendingSigner, txFee);
+
+      return {
+        isMultipleWallets: false,
+        txSignature,
+        scaledAmount,
+        secret: Buffer.from(result.secret).toString("base64"),
+        nullifier: Buffer.from(result.nullifier).toString("base64"),
+        commitment: Buffer.from(result.commitment).toString("base64"),
+      };
+    },
+    [constructDepositInstruction, buildAndSendDeposit, uiAmount],
+  );
+
   const deposit = useCallback(async (): Promise<DepositResult> => {
     if (!account?.address) {
       const err = new Error("Please connect your wallet!!!");
@@ -210,119 +293,30 @@ export const useDeposit = () => {
       const mint = address(selectedToken.mintAddress);
       const assetType = determineAssetType(mint);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const [pool] = await findPoolAddress({
-        mint,
-        assetType: assetType as any,
-      });
+      const [pool] = await findPoolAddress({ mint, assetType: assetType as any });
       const noOfRecipients = isMultipleWallets
-        ? transferInput.filter(
-            (ti) => ti.address?.trim() && Number(ti.uiAmount) > 0,
-          ).length
+        ? transferInput.filter((ti) => ti.address?.trim() && Number(ti.uiAmount) > 0).length
         : 1;
       const txFee = calculateTransactionFeeLamports(assetType, noOfRecipients);
+      const commonArgs = { sendingSigner, mint, assetType, pool, txFee };
 
-      const depositInstructions: Awaited<
-        ReturnType<typeof getDepositInstructionAsync>
-      >[] = [];
+      const result = isMultipleWallets
+        ? await depositMultiRecipient(commonArgs)
+        : await depositSingleRecipient({ ...commonArgs, decimals: selectedToken.decimals });
 
-      let txSignature: Signature;
-
-      if (isMultipleWallets) {
-        // Multi-recipient deposit
-        const recipientAmounts = getMultiRecipientAmounts();
-        const recipients: Omit<MultiRecipient, "txSignature">[] = [];
-
-        for (const { destination, scaledAmount } of recipientAmounts) {
-          const result = await constructDepositInstruction({
-            scaledAmount,
-            assetType,
-            mint,
-            pool,
-          });
-
-          depositInstructions.push(result.depositIx);
-          recipients.push({
-            destination,
-            amount: scaledAmount.toString(),
-            secret: Buffer.from(result.secret).toString("base64"),
-            nullifier: Buffer.from(result.nullifier).toString("base64"),
-            commitment: Buffer.from(result.commitment).toString("base64"),
-          });
-        }
-
-        const transferFeeIx = await transferLamportsInstruction({
-          source: sendingSigner,
-          destination: RELAYER_ADDRESS,
-          amount: txFee,
-        });
-
-        const instructions = [transferFeeIx, ...depositInstructions];
-
-        txSignature = await buildSignAndConfirm(instructions, sendingSigner);
-
-        setIsLoading(false);
-
-        // Add txSignature to each recipient
-        const recipientsWithTx: MultiRecipient[] = recipients.map((r) => ({
-          ...r,
-          txSignature,
-        }));
-
-        return {
-          isMultipleWallets: true,
-          txSignature,
-          recipients: recipientsWithTx,
-        };
-      } else {
-        // Single recipient deposit
-        const scaledAmount = scaleToTokenAmount(
-          uiAmount,
-          selectedToken.decimals,
-        );
-
-        const result = await constructDepositInstruction({
-          scaledAmount,
-          assetType,
-          mint,
-          pool,
-        });
-
-        depositInstructions.push(result.depositIx);
-
-        const transferFeeIx = await transferLamportsInstruction({
-          source: sendingSigner,
-          destination: RELAYER_ADDRESS,
-          amount: txFee,
-        });
-
-        const instructions = [transferFeeIx, ...depositInstructions];
-
-        txSignature = await buildSignAndConfirm(instructions, sendingSigner);
-
-        setIsLoading(false);
-
-        return {
-          isMultipleWallets: false,
-          txSignature,
-          scaledAmount,
-          secret: Buffer.from(result.secret).toString("base64"),
-          nullifier: Buffer.from(result.nullifier).toString("base64"),
-          commitment: Buffer.from(result.commitment).toString("base64"),
-        };
-      }
+      setIsLoading(false);
+      return result;
     } catch (err) {
       setIsLoading(false);
       throw err;
     }
   }, [
     account?.address,
-    buildSignAndConfirm,
-    constructDepositInstruction,
-    getMultiRecipientAmounts,
+    depositMultiRecipient,
+    depositSingleRecipient,
     getSendingSigner,
     isMultipleWallets,
     transferInput,
-    uiAmount,
     selectedToken,
   ]);
 
