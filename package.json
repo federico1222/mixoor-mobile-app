@@ -2,6 +2,7 @@
   "name": "mixoor-mobile-app",
   "main": "index.ts",
   "version": "1.0.0",
+  "packageManager": "pnpm@9.9.0",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -75,5 +76,10 @@
     "eslint-config-expo": "~10.0.0",
     "typescript": "~5.9.2"
   },
-  "private": true
+  "private": true,
+  "pnpm": {
+    "patchedDependencies": {
+      "@solana-mobile/mobile-wallet-adapter-protocol": "patches/@solana-mobile__mobile-wallet-adapter-protocol.patch"
+    }
+  }
 }

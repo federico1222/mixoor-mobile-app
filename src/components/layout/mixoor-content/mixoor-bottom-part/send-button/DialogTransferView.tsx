@@ -1,5 +1,5 @@
 import { CheckCircle, WarningCircle } from "phosphor-react-native";
-import { Dialog, Text, XStack, YStack } from "tamagui";
+import { Text, XStack, YStack } from "tamagui";
 
 export default function DialogTransferView({
   transferError,
@@ -11,7 +11,7 @@ export default function DialogTransferView({
   confirmationPopUpText: string;
 }) {
   return (
-    <Dialog.Title>
+    <YStack>
       {!transferSuccess && !transferError && (
         <YStack gap="$4" mb="$6">
           <Text fontSize={24} fontWeight="700" color="#FAFAFA">
@@ -81,6 +81,6 @@ export default function DialogTransferView({
           </Text>
         </YStack>
       )}
-    </Dialog.Title>
+    </YStack>
   );
 }

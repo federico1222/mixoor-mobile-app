@@ -20,6 +20,9 @@ interface TransferInputContextType {
   address: string;
   setAddress: Dispatch<SetStateAction<string>>;
 
+  resolvedAddress: string | undefined;
+  setResolvedAddress: Dispatch<SetStateAction<string | undefined>>;
+
   uiAmount: string;
   setUiAmount: Dispatch<SetStateAction<string>>;
 
@@ -45,6 +48,7 @@ export const TransferInputProvider = ({
   const [isMultipleWallets, setIsMultipleWallets] = useState<boolean>(false);
 
   const [address, setAddress] = useState<string>("");
+  const [resolvedAddress, setResolvedAddress] = useState<string | undefined>(undefined);
   const [uiAmount, setUiAmount] = useState<string>("");
   const [displayAmount, setDisplayAmount] = useState<string>("");
   const [transferInput, setTransferInput] =
@@ -72,6 +76,8 @@ export const TransferInputProvider = ({
       totalAmount,
       address,
       setAddress,
+      resolvedAddress,
+      setResolvedAddress,
       uiAmount,
       setUiAmount,
       displayAmount,
@@ -87,6 +93,8 @@ export const TransferInputProvider = ({
       totalAmount,
       address,
       setAddress,
+      resolvedAddress,
+      setResolvedAddress,
       uiAmount,
       setUiAmount,
       displayAmount,

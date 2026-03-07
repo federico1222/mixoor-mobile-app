@@ -12,6 +12,7 @@ export function useTransferButtonValidations(
 
   const {
     address: recipientAddress,
+    resolvedAddress,
     isMultipleWallets,
     transferInput,
     uiAmount,
@@ -55,11 +56,12 @@ export function useTransferButtonValidations(
    * Address validation
    * ------------------------ */
 
-  // single recipient
+  // single recipient — valid if raw address is valid OR SNS resolved successfully
   const isSingleAddressValid = useMemo(() => {
+    if (resolvedAddress && isAddress(resolvedAddress)) return true;
     if (!recipientAddress) return false;
     return isAddress(recipientAddress);
-  }, [recipientAddress]);
+  }, [recipientAddress, resolvedAddress]);
 
   // multi recipient
   const isMultiRecipientsValid = useMemo(() => {

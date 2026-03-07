@@ -1,9 +1,9 @@
 import { useSendFeedback } from "@/src/hooks/userUser";
 import { useToast } from "@/src/provider";
 import { useEffect, useRef, useState } from "react";
+import { KeyboardAvoidingView, Platform, Pressable } from "react-native";
 import {
   Button,
-  Dialog,
   TamaguiElement,
   Text,
   TextArea,
@@ -60,48 +60,53 @@ export default function Feedback() {
       id="feedback"
       open={open}
       setOpen={setOpen}
-      dialogContentProps={{ b: "$8" }}
       trigger={
-        <Text fontSize="$3" color="$color">
-          Feedback
-        </Text>
+        <Pressable onPress={() => setOpen(true)}>
+          <Text fontSize="$3" color="$color">
+            Feedback
+          </Text>
+        </Pressable>
       }
     >
-      <Dialog.Title fontSize="$4" color="$color" fontWeight={600}>
-        We’d love your feedback
-      </Dialog.Title>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <Text fontSize="$4" color="$color" fontWeight={600}>
+          We’d love your feedback
+        </Text>
 
-      <YStack my="$3" gap="$4">
-        <Dialog.Description
-          width="100%"
-          fontSize="$2"
-          fontWeight="$4"
-          color="#C2C7C9"
-        >
-          Share your thoughts or suggest features you’d like to see added.
-        </Dialog.Description>
+        <YStack my="$3" gap="$4">
+          <Text
+            width="100%"
+            fontSize="$2"
+            fontWeight="$4"
+            color="#C2C7C9"
+          >
+            Share your thoughts or suggest features you’d like to see added.
+          </Text>
 
-        <TextArea
-          ref={textAreaRef}
-          size="$5"
-          rounded="$3"
-          fontSize="$1"
-          value={feedback}
-          onChangeText={setFeedback}
-        />
+          <TextArea
+            ref={textAreaRef}
+            size="$5"
+            rounded="$3"
+            fontSize="$1"
+            value={feedback}
+            onChangeText={setFeedback}
+          />
 
-        <Button
-          size="$3"
-          mt="$2"
-          height="$4"
-          rounded="$2"
-          bg="#5D44BE"
-          disabled={!feedback.trim() || isPending}
-          onPress={handleSend}
-        >
-          {isPending ? "Sending..." : "Send"}
-        </Button>
-      </YStack>
+          <Button
+            size="$3"
+            mt="$2"
+            height="$4"
+            rounded="$2"
+            bg="#5D44BE"
+            disabled={!feedback.trim() || isPending}
+            onPress={handleSend}
+          >
+            {isPending ? "Sending..." : "Send"}
+          </Button>
+        </YStack>
+      </KeyboardAvoidingView>
     </CustomDialog>
   );
 }

@@ -40,9 +40,8 @@ export const useRiskCheck = () => {
 
         // Allow if response is undefined, error, or risk score < 10
         return true;
-      } catch (error) {
+      } catch {
         // On error (including 400), allow the transfer to proceed
-        console.warn("Risk check failed, proceeding with transfer:", error);
         return true;
       } finally {
         setIsChecking(false);

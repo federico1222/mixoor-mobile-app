@@ -1,51 +1,34 @@
-import { formatAddress, getWalletIcon } from "@/src/helpers";
-import { isUserRejection, useSignIn, useSignOut } from "@/src/hooks/useAuthenticate";
+import { formatAddress } from "@/src/helpers";
+import { useSignOut } from "@/src/hooks/useAuthenticate";
+import { useWalletConnect } from "@/src/hooks/useWalletConnect";
 import { useUserDetails } from "@/src/hooks/userUser";
-import { useToast } from "@/src/provider";
-import { isNoWalletsError } from "@/src/utils/detectWallets";
+import { WALLET_APPS } from "@/src/utils/detectWallets";
 import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { WalletIcon } from "phosphor-react-native";
-import { useState } from "react";
-import { Image, Spinner } from "tamagui";
+import { Image as RNImage } from "react-native";
+import { Spinner } from "tamagui";
 import ConnectWalletButton from "../wallet/ConnectWalletButton";
 import InstallWalletModal from "../wallet/InstallWalletModal";
+import WalletSelectorModal from "../wallet/WalletSelectorModal";
 import { WalletMenu } from "../wallet/WalletMenu";
 
 export default function RightPart() {
-  const { toast } = useToast();
   const { data: userDetails } = useUserDetails();
   const { account } = useMobileWallet();
-  const { signIn, signingState, getLastError } = useSignIn();
   const { signOut } = useSignOut();
 
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [showInstallModal, setShowInstallModal] = useState(false);
-
-  const handleConnect = async () => {
-    setIsConnecting(true);
-
-    const success = await signIn();
-
-    if (!success) {
-      const error = getLastError();
-
-      if (isNoWalletsError(error)) {
-        setShowInstallModal(true);
-      } else if (!isUserRejection(error)) {
-        const isTimeout = error?.message?.includes("timed out");
-        toast({
-          type: "error",
-          title: isTimeout ? "Wallet prompt not detected" : "Connection Failed",
-          description: isTimeout
-            ? "Open your wallet and approve the sign request, then try again."
-            : error?.message || "Unable to connect to wallet. Please try again.",
-          ...(isTimeout && { action: { label: "Retry", onPress: handleConnect } }),
-        });
-      }
-    }
-
-    setIsConnecting(false);
-  };
+  const {
+    isConnecting,
+    signingState,
+    connectedPackage,
+    showInstallModal,
+    setShowInstallModal,
+    showSelectorModal,
+    setShowSelectorModal,
+    detectedWallets,
+    handleConnect,
+    handleSelectWallet,
+  } = useWalletConnect();
 
   if (!account?.address) {
     return (
@@ -77,6 +60,13 @@ export default function RightPart() {
           open={showInstallModal}
           onOpenChange={setShowInstallModal}
         />
+
+        <WalletSelectorModal
+          open={showSelectorModal}
+          onOpenChange={setShowSelectorModal}
+          wallets={detectedWallets}
+          onSelectWallet={handleSelectWallet}
+        />
       </>
     );
   }
@@ -95,11 +85,20 @@ export default function RightPart() {
             userDetails?.username || formatAddress(account.address, 3, 0, 3)
           }
         >
-          {account?.label ? (
-            <Image src={getWalletIcon(account.label)} width={18} height={18} />
-          ) : (
-            <WalletIcon color="#CCCFF9" size={18} />
-          )}
+          {(() => {
+            const walletApp = connectedPackage
+              ? WALLET_APPS.find((w) => w.packageName === connectedPackage)
+              : undefined;
+            if (walletApp?.icon) {
+              return (
+                <RNImage
+                  source={typeof walletApp.icon === "string" ? { uri: walletApp.icon } : walletApp.icon}
+                  style={{ width: 18, height: 18, borderRadius: 4 }}
+                />
+              );
+            }
+            return <WalletIcon color="#CCCFF9" size={18} />;
+          })()}
         </ConnectWalletButton>
       }
     />

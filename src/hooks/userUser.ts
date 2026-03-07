@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useMobileWallet } from "@wallet-ui/react-native-kit";
+import { useAuth } from "../provider/auth-provider";
 import {
   fetchUserDeposits,
   fetchUserDetails,
@@ -22,6 +23,7 @@ export function useSendFeedback() {
 
 export const useUserDetails = () => {
   const { account } = useMobileWallet();
+  const { isAuthenticated } = useAuth();
 
   return useQuery<UserDetails | null>({
     queryKey: ["userDetails", account?.address],
@@ -36,13 +38,12 @@ export const useUserDetails = () => {
         }
 
         return resp.data as UserDetails;
-      } catch (error) {
-        console.log("Error fetching user details ->", error);
+      } catch {
         return null;
       }
     },
     retry: 2,
-    enabled: !!account?.address,
+    enabled: !!account?.address && isAuthenticated,
   });
 };
 
@@ -78,7 +79,6 @@ export const useUserPreviousTransfers = (
         );
         return resp;
       } catch (error) {
-        console.log("error fetching previous user transactions ->", error);
         throw error;
       }
     },
@@ -99,8 +99,7 @@ export const useUserDeposits = () => {
         const resp = await fetchUserDeposits(account?.address);
 
         return resp?.data ?? [];
-      } catch (error) {
-        console.log("error fetching unspent user deposits ->", error);
+      } catch {
         return [];
       }
     },

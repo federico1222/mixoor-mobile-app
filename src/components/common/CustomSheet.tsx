@@ -1,3 +1,4 @@
+import { ToastOverlay } from "@/src/provider/toast-provider";
 import React, { ReactNode } from "react";
 import { Sheet } from "tamagui";
 
@@ -36,6 +37,7 @@ export default function CustomSheet({
         backdropFilter="blur(10px)"
       />
 
+      <ToastOverlay />
       <Sheet.Frame
         key={`sheet-${id}`}
         bg={"$background"}

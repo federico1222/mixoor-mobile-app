@@ -1,7 +1,6 @@
 import CustomDialog from "@/src/components/common/CustomDialog";
 import { formatAddress } from "@/src/helpers";
 import { calculateTransferFee } from "@/src/helpers/calculations";
-import { useAddressValidation } from "@/src/hooks/useAddressValidation";
 import { useRiskCheck } from "@/src/hooks/useRiskCheck";
 import { useTransferButtonValidations } from "@/src/hooks/useTransferButtonValidations";
 import { useTransferValidation } from "@/src/hooks/useTransferValidation";
@@ -29,6 +28,7 @@ export default function SendTxModal({
     transferInput,
     isMultipleWallets,
     address: recipientAddress,
+    resolvedAddress,
   } = useTransferInput();
   const { account } = useMobileWallet();
 
@@ -40,7 +40,6 @@ export default function SendTxModal({
     setError,
     setSuccess,
   } = useTransferWithToasts();
-  const { validationState } = useAddressValidation(recipientAddress);
   const { checkAddressRisk, isChecking } = useRiskCheck();
 
   const { selectedToken } = useTokenSelection();
@@ -87,8 +86,7 @@ export default function SendTxModal({
 
     await handleTransfer({
       uiAmount,
-      recipientAddress:
-        validationState?.resolvedSNSdAddress || recipientAddress,
+      recipientAddress: resolvedAddress || recipientAddress,
       selectedToken,
       userAddress: account.address,
       isMultipleWallets,
@@ -103,13 +101,13 @@ export default function SendTxModal({
     isBelowMinimum,
     isMultipleWallets,
     recipientAddress,
+    resolvedAddress,
     selectedToken,
     showBalanceErrorToast,
     showMinimumDepositToast,
     transferInput,
     transferType,
     uiAmount,
-    validationState?.resolvedSNSdAddress,
   ]);
 
   return (

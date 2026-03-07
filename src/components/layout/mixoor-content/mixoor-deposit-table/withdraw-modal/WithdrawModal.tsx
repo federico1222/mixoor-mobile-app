@@ -4,7 +4,6 @@ import { useUserDeposits } from "@/src/hooks/userUser";
 import { useToast } from "@/src/provider/toast-provider";
 import { sparsedTransferFromBE } from "@/src/services/transfer.service";
 import { UserDeposits } from "@/src/types/user";
-import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { PaperPlaneTiltIcon } from "phosphor-react-native";
 import { Dispatch, SetStateAction, useCallback, useState } from "react";
 import { ActivityIndicator } from "react-native";
@@ -16,19 +15,19 @@ interface WithdrawModalProps {
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   depositDetails: UserDeposits;
+  userAddress: string;
 }
 
 export default function WithdrawModal({
   open,
   setOpen,
   depositDetails,
+  userAddress,
 }: WithdrawModalProps) {
   const [recipientAddress, setRecipientAddress] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [withdrawSuccess, setWithdrawSuccess] = useState<boolean>(false);
   const [withdrawError, setWithdrawError] = useState<boolean>(false);
-
-  const { account } = useMobileWallet();
   const { toast } = useToast();
 
   const { validationState } = useAddressValidation(recipientAddress);
@@ -42,13 +41,13 @@ export default function WithdrawModal({
   }, [setRecipientAddress, setWithdrawSuccess, setWithdrawError, refetch]);
 
   const handleWithdraw = async () => {
-    if (!recipientAddress || !account?.address) return;
+    if (!recipientAddress || !userAddress) return;
 
     try {
       setIsLoading(true);
 
       await sparsedTransferFromBE({
-        userAddress: account?.address,
+        userAddress,
         depositId: depositDetails.id,
         recipientAddress:
           validationState?.resolvedSNSdAddress || recipientAddress,
@@ -62,7 +61,6 @@ export default function WithdrawModal({
         description: `Sent ${depositDetails.uiAmount} ${depositDetails?.tokenMetadata?.symbol ?? ""} privately.`,
       });
     } catch (error) {
-      console.log("Withdraw error:", error);
       setWithdrawError(true);
       setWithdrawSuccess(false);
       toast({

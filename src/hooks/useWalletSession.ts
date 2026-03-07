@@ -32,10 +32,8 @@ export function useWalletSession() {
 
     // Wallet disconnected
     if (prevAddressRef.current && !currentAddress) {
-      console.log("Wallet disconnected, logging out...");
-
       logout()
-        .catch((err) => console.log("Error logging out:", err))
+        .catch(() => {})
         .finally(() => {
           invalidateAuthQueries();
         });

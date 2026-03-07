@@ -6,6 +6,7 @@ import { TamaguiProvider } from "tamagui";
 import { FontsProvider } from "./font-provider";
 import { NetworkProvider } from "./network-provider";
 import { ToastProvider } from "./toast-provider";
+import { AuthProvider } from "./auth-provider";
 import { TokenProvider } from "./token-provider";
 import { TransferInputProvider } from "./transfer-input-provider";
 import { MobileWalletProvider } from "@wallet-ui/react-native-kit";
@@ -22,9 +23,11 @@ export function AppProviders({ children }: { children: ReactNode }) {
           <QueryClientProvider client={queryClient}>
             <NetworkProvider network={network}>
               <MobileWalletProvider cluster={network} identity={APP_IDENTITY}>
-                <TokenProvider>
-                  <TransferInputProvider>{children}</TransferInputProvider>
-                </TokenProvider>
+                <AuthProvider>
+                  <TokenProvider>
+                    <TransferInputProvider>{children}</TransferInputProvider>
+                  </TokenProvider>
+                </AuthProvider>
               </MobileWalletProvider>
             </NetworkProvider>
           </QueryClientProvider>

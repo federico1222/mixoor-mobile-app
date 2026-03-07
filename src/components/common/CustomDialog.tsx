@@ -1,6 +1,8 @@
+import { ToastOverlay } from "@/src/provider/toast-provider";
 import { X } from "phosphor-react-native";
 import React from "react";
-import { Button, Dialog, DialogContentProps, Unspaced } from "tamagui";
+import { Modal, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
+import { Button, YStack, YStackProps } from "tamagui";
 
 type CustomDialogProps = {
   id: string;
@@ -9,11 +11,10 @@ type CustomDialogProps = {
   children: React.ReactNode;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 
-  dialogContentProps?: DialogContentProps;
+  dialogContentProps?: YStackProps;
 };
 
 export default function CustomDialog({
-  id,
   open,
   setOpen,
   trigger,
@@ -21,45 +22,56 @@ export default function CustomDialog({
   dialogContentProps,
 }: CustomDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={(e) => setOpen(e)}>
-      <Dialog.Trigger asChild>{trigger}</Dialog.Trigger>
+    <>
+      {trigger}
 
-      <Dialog.Portal key={`portal-${id}`} mx={10}>
-        <Dialog.Overlay
-          position="absolute"
-          style={{ zIndex: 10000 }}
-          bg={"rgba(0, 0, 0, 0.60)"}
-          backdropFilter={"blur(5px)"}
-        />
+      <Modal
+        visible={open}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setOpen(false)}
+        statusBarTranslucent
+      >
+        <ToastOverlay />
+        <TouchableWithoutFeedback onPress={() => setOpen(false)}>
+          <View style={styles.overlay}>
+            <TouchableWithoutFeedback>
+              <YStack
+                p={24}
+                mx={10}
+                rounded={20}
+                width="100%"
+                bg="$background"
+                borderWidth={1}
+                borderColor="#27272A"
+                {...dialogContentProps}
+              >
+                {children}
 
-        <Dialog.Content
-          position="absolute"
-          style={{ zIndex: 10000 }}
-          p={24}
-          rounded={20}
-          width={"100%"}
-          bg={"$background"}
-          key={`content-${id}`}
-          border={"1px solid #27272A"}
-          {...dialogContentProps}
-        >
-          {children}
-
-          <Unspaced>
-            <Dialog.Close asChild>
-              <Button
-                position="absolute"
-                r="$4"
-                t={"$4"}
-                size="$4"
-                circular
-                bg={"transparent"}
-                icon={<X color="white" />}
-              />
-            </Dialog.Close>
-          </Unspaced>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
+                <Button
+                  position="absolute"
+                  r="$4"
+                  t="$4"
+                  size="$4"
+                  circular
+                  bg="transparent"
+                  icon={<X color="white" />}
+                  onPress={() => setOpen(false)}
+                />
+              </YStack>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.60)",
+  },
+});
