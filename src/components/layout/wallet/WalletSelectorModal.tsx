@@ -1,7 +1,8 @@
 import { WALLET_APPS } from "@/src/utils/detectWallets";
 import { DetectedWallet } from "@/src/utils/wallet-discovery";
 import { ArrowSquareInIcon, X } from "phosphor-react-native";
-import { Image, Linking, Pressable } from "react-native";
+import { useState } from "react";
+import { ActivityIndicator, Image, Linking, Pressable } from "react-native";
 import { Text, XStack, YStack } from "tamagui";
 import CustomSheet from "../../common/CustomSheet";
 
@@ -9,7 +10,7 @@ interface WalletSelectorModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   wallets: DetectedWallet[];
-  onSelectWallet: (wallet: DetectedWallet) => void;
+  onSelectWallet: (wallet: DetectedWallet) => Promise<void>;
 }
 
 const PACKAGE_TO_WALLET: Record<string, string> = {
@@ -39,18 +40,31 @@ export default function WalletSelectorModal({
   wallets,
   onSelectWallet,
 }: WalletSelectorModalProps) {
+  const [connectingPackage, setConnectingPackage] = useState<string | null>(null);
+  const isConnecting = connectingPackage !== null;
+
   const installedPackages = new Set(wallets.map((w) => w.packageName));
   const installableWallets = WALLET_APPS.filter(
     (w) => !installedPackages.has(w.packageName)
   );
 
+  const handleSelect = async (wallet: DetectedWallet) => {
+    setConnectingPackage(wallet.packageName);
+    try {
+      await onSelectWallet(wallet);
+    } finally {
+      setConnectingPackage(null);
+      onOpenChange(false);
+    }
+  };
+
   return (
-    <CustomSheet open={open} onOpenChange={onOpenChange} id="wallet-selector">
+    <CustomSheet open={open} onOpenChange={(v) => { if (!isConnecting) onOpenChange(v); }} id="wallet-selector">
       <XStack justify="space-between" items="center" mb="$6">
         <Text fontSize={24} fontWeight="700" color="#FAFAFA">
           Select Wallet
         </Text>
-        <Pressable onPress={() => onOpenChange(false)}>
+        <Pressable onPress={() => { if (!isConnecting) onOpenChange(false); }}>
           <X size={24} color="#FAFAFA" />
         </Pressable>
       </XStack>
@@ -62,15 +76,14 @@ export default function WalletSelectorModal({
       <YStack gap="$3">
         {wallets.map((wallet) => {
           const info = getWalletInfo(wallet.packageName, wallet.appName);
+          const isThisConnecting = connectingPackage === wallet.packageName;
           return (
             <Pressable
               key={wallet.packageName}
-              onPress={() => {
-                onOpenChange(false);
-                onSelectWallet(wallet);
-              }}
+              onPress={() => handleSelect(wallet)}
+              disabled={isConnecting}
               style={({ pressed }) => ({
-                opacity: pressed ? 0.7 : 1,
+                opacity: isConnecting && !isThisConnecting ? 0.4 : pressed ? 0.7 : 1,
               })}
             >
               <XStack
@@ -109,8 +122,11 @@ export default function WalletSelectorModal({
                   </YStack>
                 )}
                 <Text fontSize={16} fontWeight="600" color="$text" flex={1}>
-                  {info.name}
+                  {isThisConnecting ? "Connecting..." : info.name}
                 </Text>
+                {isThisConnecting && (
+                  <ActivityIndicator size="small" color="#CCCFF9" />
+                )}
               </XStack>
             </Pressable>
           );

@@ -208,6 +208,13 @@ export default function MultiSendingAmountInput({
                 objectFit="contain"
                 src={require("../../../../../assets/img/sol.png")}
               />
+            ) : selectedToken?.symbol === "USDC" ? (
+              <Image
+                width={20}
+                height={20}
+                objectFit="contain"
+                src={require("../../../../../assets/img/usdc.png")}
+              />
             ) : (
               <Image
                 source={{
