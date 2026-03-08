@@ -397,6 +397,7 @@ export const useTransferWithToasts = () => {
           });
         }
       } catch (err) {
+        setIsBELoading(false);
         handleTransferError(
           err instanceof Error ? err.message : "Unknown error occurred",
           undefined,

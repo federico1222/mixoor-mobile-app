@@ -12,9 +12,10 @@ import {
   WarningCircleIcon,
 } from "phosphor-react-native";
 import { useState } from "react";
-import { Image, Pressable, ScrollView } from "react-native";
+import { Pressable, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Sheet, Text, XStack, YStack } from "tamagui";
+import TokenIcon from "../../../common/TokenIcon";
 
 const COL_DATE = 130;
 const COL_RECIPIENT = 180;
@@ -262,12 +263,11 @@ export default function TransactionSidebar({
                         <Text color={textColor} fontSize={14} numberOfLines={1}>
                           {formatAmount(item.uiAmount)}
                         </Text>
-                        {item?.tokenMetadata?.image && (
-                          <Image
-                            source={{ uri: item.tokenMetadata.image }}
-                            style={{ width: 20, height: 20, borderRadius: 4 }}
-                          />
-                        )}
+                        <TokenIcon
+                          symbol={item?.tokenMetadata?.symbol}
+                          remoteUri={item?.tokenMetadata?.image}
+                          mintAddress={item?.mintAddress}
+                        />
                       </XStack>
                     </XStack>
                   );

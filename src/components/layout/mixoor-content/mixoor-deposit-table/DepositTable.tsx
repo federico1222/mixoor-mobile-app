@@ -1,8 +1,9 @@
 import { useUserDeposits } from "@/src/hooks/userUser";
 import { MagnifyingGlassIcon } from "phosphor-react-native";
 import React from "react";
-import { Image, ScrollView as RNScrollView } from "react-native";
+import { ScrollView as RNScrollView } from "react-native";
 import { Text, XStack, YStack } from "tamagui";
+import TokenIcon from "../../../common/TokenIcon";
 import ActionCell from "./ActionCell";
 import DepositSidebarTable from "./DepositSidebarTable";
 import StatusCell from "./StatusCell";
@@ -91,10 +92,12 @@ export default function DepositTable() {
               <Text fontSize={14} color="#FAFAFA" fontWeight="400">
                 {item?.uiAmount}
               </Text>
-              {/* FIXME: USE UNKNOWN TOKEN IMAGE BELOW */}
-              <Image
-                source={{ uri: item.tokenMetadata?.image }}
-                style={{ width: 24, height: 24, borderRadius: 8 }}
+              <TokenIcon
+                symbol={item.tokenMetadata?.symbol}
+                remoteUri={item.tokenMetadata?.image}
+                mintAddress={item?.mintAddress}
+                size={24}
+                borderRadius={8}
               />
             </XStack>
 

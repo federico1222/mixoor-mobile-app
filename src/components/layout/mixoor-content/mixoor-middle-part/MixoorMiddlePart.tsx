@@ -45,13 +45,13 @@ export default function MixoorMiddlePart() {
     <YStack gap="$2">
       <XStack gap={"$3"} items={"center"}>
         <XStack
-          width={52}
+          width={64}
           height={52}
           items={"center"}
           justify={"center"}
           bg={"rgba(64, 53, 122, 0.15)"}
           rounded={18}
-          gap="$1"
+          gap="$2"
           onPress={() => setShowSelector(!showSelector)}
           pressStyle={{ opacity: 0.7 }}
           cursor="pointer"
