@@ -124,6 +124,7 @@ export function useSignOut() {
     } finally {
       clearTargetWallet();
       await AsyncStorage.removeItem(SESSION_COOKIE_KEY);
+      await AsyncStorage.removeItem("mixoor_connected_package");
       await disconnect();
       queryClient.invalidateQueries({ queryKey: ["startAuthMessage"] });
       queryClient.invalidateQueries({ queryKey: ["userDetails"] });

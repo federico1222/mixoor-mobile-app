@@ -3,9 +3,10 @@ import { useUserDeposits } from "@/src/hooks/userUser";
 import { useMobileWallet } from "@wallet-ui/react-native-kit";
 import { ArrowUpRightIcon } from "phosphor-react-native";
 import { useState } from "react";
-import { Image, Modal, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Modal, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button, Text, XStack, YStack } from "tamagui";
+import TokenIcon from "../../../common/TokenIcon";
 import ActionCell from "./ActionCell";
 import StatusCell from "./StatusCell";
 
@@ -144,12 +145,11 @@ export default function DepositFoundSidebar() {
                         <Text fontSize={14} color="#FAFAFA" fontWeight="400">
                           {item.uiAmount}
                         </Text>
-                        {item?.tokenMetadata?.image && (
-                          <Image
-                            source={{ uri: item.tokenMetadata.image }}
-                            style={{ width: 20, height: 20, borderRadius: 4 }}
-                          />
-                        )}
+                        <TokenIcon
+                          symbol={item?.tokenMetadata?.symbol}
+                          remoteUri={item?.tokenMetadata?.image}
+                          mintAddress={item?.mintAddress}
+                        />
                       </XStack>
 
                       {/* Status */}

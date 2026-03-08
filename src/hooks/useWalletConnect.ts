@@ -6,8 +6,11 @@ import {
   getAvailableWallets,
   setTargetWallet,
 } from "@/src/utils/wallet-discovery";
-import { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
 import { isUserRejection, useSignIn } from "./useAuthenticate";
+
+const CONNECTED_PACKAGE_KEY = "mixoor_connected_package";
 
 export function useWalletConnect() {
   const { toast } = useToast();
@@ -18,6 +21,17 @@ export function useWalletConnect() {
   const [showSelectorModal, setShowSelectorModal] = useState(false);
   const [detectedWallets, setDetectedWallets] = useState<DetectedWallet[]>([]);
   const [connectedPackage, setConnectedPackage] = useState<string | null>(null);
+
+  // Restore persisted connected package once on mount
+  useEffect(() => {
+    AsyncStorage.getItem(CONNECTED_PACKAGE_KEY).then((pkg) => {
+      if (pkg) {
+        setConnectedPackage(pkg);
+        setTargetWallet(pkg);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const connectWithWallet = async (packageName?: string) => {
     setIsConnecting(true);
@@ -36,6 +50,7 @@ export function useWalletConnect() {
 
     if (success && packageName) {
       setConnectedPackage(packageName);
+      AsyncStorage.setItem(CONNECTED_PACKAGE_KEY, packageName);
     }
 
     if (!success) {
